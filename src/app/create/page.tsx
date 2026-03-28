@@ -52,7 +52,7 @@ export default function CreatePage() {
     setError("");
 
     try {
-      const token = getToken();
+      const token = await getToken();
       const res = await fetch("/api/mocks", {
         method: "POST",
         headers: {

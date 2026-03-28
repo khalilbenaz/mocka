@@ -27,7 +27,7 @@ function DashboardContent() {
   const [expandedSlug, setExpandedSlug] = useState<string | null>(created);
 
   const fetchProjects = useCallback(async () => {
-    const token = getToken();
+    const token = await getToken();
     if (!token) {
       setLoading(false);
       return;
@@ -57,7 +57,7 @@ function DashboardContent() {
 
   const handleDelete = async (slug: string) => {
     if (!confirm("Delete this mock project?")) return;
-    const token = getToken();
+    const token = await getToken();
     await fetch(`/api/mocks?slug=${slug}`, {
       method: "DELETE",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -221,10 +221,7 @@ function DashboardContent() {
                     {/* Base URL */}
                     <div className="bg-background border border-border rounded-lg px-4 py-3 mb-4 font-mono text-sm">
                       <span className="text-muted">Base URL: </span>
-                      <span className="text-accent">
-                        {typeof window !== "undefined" ? window.location.origin : ""}/api/mock/
-                        {project.userSlug}/{project.slug}
-                      </span>
+                      <span className="text-accent">{typeof window !== "undefined" ? window.location.origin : ""}/api/mock/{project.userSlug}/{project.slug}</span>
                     </div>
 
                     {/* Endpoints */}
@@ -255,12 +252,7 @@ function DashboardContent() {
                     {/* Quick test */}
                     <div className="mt-4 text-xs text-muted">
                       Test with:{" "}
-                      <code className="bg-surface-2 px-2 py-1 rounded text-accent">
-                        curl{" "}
-                        {typeof window !== "undefined" ? window.location.origin : ""}/api/mock/
-                        {project.userSlug}/{project.slug}
-                        {project.endpoints[0]?.path || "/"}
-                      </code>
+                      <code className="bg-surface-2 px-2 py-1 rounded text-accent">curl {typeof window !== "undefined" ? window.location.origin : ""}/api/mock/{project.userSlug}/{project.slug}{project.endpoints[0]?.path || "/"}</code>
                     </div>
                   </div>
                 )}
