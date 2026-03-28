@@ -14,6 +14,7 @@ export interface MockEndpoint {
 export interface MockProject {
   id: string;
   userId: string;
+  userSlug: string; // short unique id derived from userId (6 chars)
   name: string;
   slug: string;
   description: string;

@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import EndpointForm from "@/components/EndpointForm";
 import { useAuth } from "@/lib/auth";
 import { MockEndpoint } from "@/lib/types";
-import { generateId, generateSlug, methodColor } from "@/lib/utils";
+import { generateId, generateSlug, methodColor, userIdToSlug } from "@/lib/utils";
 
 export default function CreatePage() {
   const router = useRouter();
@@ -171,7 +171,7 @@ export default function CreatePage() {
               />
               {name && (
                 <p className="text-xs text-muted mt-1">
-                  URL: <span className="text-accent font-mono">qd.je/m/{generateSlug(name)}</span>
+                  URL: <span className="text-accent font-mono">/api/mock/{user ? userIdToSlug(user.id) : "..."}/{generateSlug(name)}/...</span>
                 </p>
               )}
             </div>

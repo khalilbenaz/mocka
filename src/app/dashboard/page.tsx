@@ -65,15 +65,15 @@ function DashboardContent() {
     setProjects(projects.filter((p) => p.slug !== slug));
   };
 
-  const handleCopy = async (slug: string) => {
+  const handleCopy = async (userSlug: string, slug: string) => {
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-    await copyToClipboard(`${baseUrl}/api/mock/${slug}`);
+    await copyToClipboard(`${baseUrl}/api/mock/${userSlug}/${slug}`);
     setCopiedSlug(slug);
     setTimeout(() => setCopiedSlug(null), 2000);
   };
 
   const handleExport = (project: MockProject) => {
-    const { userId, ...exportData } = project;
+    const { userId, userSlug, ...exportData } = project;
     const data = JSON.stringify(exportData, null, 2);
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -188,7 +188,7 @@ function DashboardContent() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCopy(project.slug);
+                        handleCopy(project.userSlug, project.slug);
                       }}
                       className="text-xs text-muted hover:text-foreground border border-border px-3 py-1.5 rounded-lg transition-colors"
                     >
@@ -223,7 +223,7 @@ function DashboardContent() {
                       <span className="text-muted">Base URL: </span>
                       <span className="text-accent">
                         {typeof window !== "undefined" ? window.location.origin : ""}/api/mock/
-                        {project.slug}
+                        {project.userSlug}/{project.slug}
                       </span>
                     </div>
 
@@ -258,7 +258,7 @@ function DashboardContent() {
                       <code className="bg-surface-2 px-2 py-1 rounded text-accent">
                         curl{" "}
                         {typeof window !== "undefined" ? window.location.origin : ""}/api/mock/
-                        {project.slug}
+                        {project.userSlug}/{project.slug}
                         {project.endpoints[0]?.path || "/"}
                       </code>
                     </div>

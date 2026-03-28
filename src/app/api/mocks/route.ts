@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MockProject } from "@/lib/types";
-import { getUserProjects, saveProject, slugExists, deleteProject, getProject, userOwnsProject } from "@/lib/store";
+import { getUserProjects, saveProject, slugExistsForUser, deleteProject, userOwnsProject } from "@/lib/store";
 import { getUserFromRequest } from "@/lib/auth-server";
+import { userIdToSlug } from "@/lib/utils";
 
 function unauthorized() {
   return NextResponse.json({ error: "Authentication required" }, { status: 401 });
@@ -32,10 +33,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "At least one endpoint is required" }, { status: 400 });
     }
 
-    // Ensure unique slug globally
+    const uSlug = userIdToSlug(user.sub);
+
+    // Ensure unique slug within user's namespace
     let slug = body.slug;
     let counter = 1;
-    while (slugExists(slug)) {
+    while (slugExistsForUser(uSlug, slug)) {
       slug = `${body.slug}-${counter}`;
       counter++;
     }
@@ -44,11 +47,12 @@ export async function POST(request: NextRequest) {
       ...body,
       slug,
       userId: user.sub,
+      userSlug: uSlug,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    saveProject(user.sub, project);
+    saveProject(project);
     return NextResponse.json(project, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
@@ -62,28 +66,24 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body: MockProject = await request.json();
+    const uSlug = userIdToSlug(user.sub);
 
     if (!body.slug) {
       return NextResponse.json({ error: "Slug is required" }, { status: 400 });
     }
 
-    if (!userOwnsProject(user.sub, body.slug)) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
-
-    const existing = getProject(body.slug);
-    if (!existing) {
+    if (!userOwnsProject(user.sub, uSlug, body.slug)) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     const updated: MockProject = {
-      ...existing,
       ...body,
       userId: user.sub,
+      userSlug: uSlug,
       updatedAt: new Date().toISOString(),
     };
 
-    saveProject(user.sub, updated);
+    saveProject(updated);
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
@@ -97,16 +97,17 @@ export async function DELETE(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get("slug");
+  const uSlug = userIdToSlug(user.sub);
 
   if (!slug) {
     return NextResponse.json({ error: "Slug is required" }, { status: 400 });
   }
 
-  if (!userOwnsProject(user.sub, slug)) {
+  if (!userOwnsProject(user.sub, uSlug, slug)) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
-  const deleted = deleteProject(user.sub, slug);
+  const deleted = deleteProject(uSlug, slug);
   if (!deleted) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }

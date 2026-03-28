@@ -1,27 +1,23 @@
 import { MockProject } from "./types";
 
 // In-memory store for mock projects (server-side)
-// Key format: "userId:slug" for user-scoped projects
-// Mock serving uses slug-only lookup across all users
+// Key format: "userSlug:slug" for user-scoped projects
 const projects = new Map<string, MockProject>();
 
-function userKey(userId: string, slug: string): string {
-  return `${userId}:${slug}`;
+function projectKey(userSlug: string, slug: string): string {
+  return `${userSlug}:${slug}`;
 }
 
-// Get a project by slug (for serving mocks — no auth needed)
-export function getProject(slug: string): MockProject | undefined {
-  for (const project of projects.values()) {
-    if (project.slug === slug) return project;
-  }
-  return undefined;
+// Get a project by userSlug + slug (for serving mocks — no auth needed)
+export function getProject(userSlug: string, slug: string): MockProject | undefined {
+  return projects.get(projectKey(userSlug, slug));
 }
 
 // Get all projects for a specific user
 export function getUserProjects(userId: string): MockProject[] {
   const userProjects: MockProject[] = [];
-  for (const [key, project] of projects.entries()) {
-    if (key.startsWith(`${userId}:`)) {
+  for (const project of projects.values()) {
+    if (project.userId === userId) {
       userProjects.push(project);
     }
   }
@@ -31,24 +27,22 @@ export function getUserProjects(userId: string): MockProject[] {
 }
 
 // Save a project scoped to a user
-export function saveProject(userId: string, project: MockProject): void {
-  projects.set(userKey(userId, project.slug), project);
+export function saveProject(project: MockProject): void {
+  projects.set(projectKey(project.userSlug, project.slug), project);
 }
 
-// Delete a project scoped to a user
-export function deleteProject(userId: string, slug: string): boolean {
-  return projects.delete(userKey(userId, slug));
+// Delete a project
+export function deleteProject(userSlug: string, slug: string): boolean {
+  return projects.delete(projectKey(userSlug, slug));
 }
 
-// Check if a slug exists globally (slugs must be unique across all users)
-export function slugExists(slug: string): boolean {
-  for (const project of projects.values()) {
-    if (project.slug === slug) return true;
-  }
-  return false;
+// Check if a slug exists for a given user
+export function slugExistsForUser(userSlug: string, slug: string): boolean {
+  return projects.has(projectKey(userSlug, slug));
 }
 
 // Check if a user owns a project
-export function userOwnsProject(userId: string, slug: string): boolean {
-  return projects.has(userKey(userId, slug));
+export function userOwnsProject(userId: string, userSlug: string, slug: string): boolean {
+  const project = projects.get(projectKey(userSlug, slug));
+  return project?.userId === userId;
 }
