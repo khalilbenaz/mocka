@@ -1,44 +1,54 @@
 <div align="center">
 
-# Mocka
+# ⚡ Mocka
 
 **Mock anything. Instantly.**
 
 Create mock API servers in seconds. Define your endpoints, get a live URL, and test your frontend without waiting for the backend.
 
-[Live Demo](https://mock-a.netlify.app) | [Create a Mock](https://mock-a.netlify.app/create)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-mock--a.netlify.app-6366f1?style=for-the-badge&logo=netlify&logoColor=white)](https://mock-a.netlify.app)
+[![GitHub](https://img.shields.io/badge/GitHub-khalilbenaz%2Fmocka-181717?style=for-the-badge&logo=github)](https://github.com/khalilbenaz/mocka)
+
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=flat-square&logo=netlify&logoColor=white)
 
 </div>
 
 ---
 
-## What is Mocka?
+## 🔍 What is Mocka?
 
 Mocka is a free, open-source mock server builder. It lets you define API endpoints with custom responses, status codes, headers, and latency — then serves them at a live URL you can use immediately.
 
-**No signup. No config files. No backend required.**
+**Free. No config files. No backend required.**
 
-## Features
+## ✨ Features
 
-- **All HTTP Methods** — GET, POST, PUT, PATCH, DELETE
-- **Custom Responses** — JSON, XML, HTML, plain text with any status code
-- **Custom Headers** — Add any response headers you need
-- **Simulated Latency** — Add delays (ms) to mimic real-world network conditions
-- **Path Parameters** — Support for `:param` style dynamic segments (e.g. `/users/:id`)
-- **CORS Enabled** — All endpoints include CORS headers by default
-- **Import/Export** — Save and share mock configurations as JSON files
-- **Shareable URLs** — Each mock project gets a unique, shareable base URL
-- **User Accounts** — Netlify Identity authentication, each user has their own mocks
-- **Dark UI** — Clean, modern dark interface
+| Feature | Description |
+|---------|-------------|
+| 🔐 **User Accounts** | Sign up / login with Netlify Identity — each user has their own private mocks |
+| 📬 **Email Confirmation** | Account verification by email on signup |
+| 🌐 **All HTTP Methods** | GET, POST, PUT, PATCH, DELETE |
+| 📦 **Any Response** | JSON, XML, HTML, plain text with any status code |
+| 🏷️ **Custom Headers** | Add any response headers you need |
+| ⏱️ **Simulated Latency** | Add delays (ms) to mimic real-world network conditions |
+| 🔗 **Path Parameters** | Support for `:param` style dynamic segments (e.g. `/users/:id`) |
+| 🌍 **CORS Ready** | All endpoints include CORS headers by default |
+| 📤 **Import / Export** | Save and share mock configurations as JSON files |
+| 🔗 **Shareable URLs** | Each mock project gets a unique, public base URL |
+| 🌙 **Dark UI** | Clean, modern dark interface |
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Use the hosted version
 
-1. Go to [mock-a.netlify.app](https://mock-a.netlify.app) and sign up (free)
-2. Go to [/create](https://mock-a.netlify.app/create), name your project and add endpoints
-3. Click **Create Mock Server**
-4. Your mock is live — use the base URL in your frontend
+1. 🔑 Go to [mock-a.netlify.app](https://mock-a.netlify.app) and **sign up** (free)
+2. 📧 Confirm your email
+3. ✏️ Go to [/create](https://mock-a.netlify.app/create), name your project and add endpoints
+4. 🚀 Click **Create Mock Server**
+5. 🎉 Your mock is live — use the base URL in your frontend
 
 ### Run locally
 
@@ -51,15 +61,16 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## How It Works
+## 📖 How It Works
 
-### 1. Create a mock project
+### 1️⃣ Create a mock project
 
-Use the web UI at `/create` or send a POST request:
+Use the web UI at `/create` or send an authenticated POST request:
 
 ```bash
 curl -X POST https://mock-a.netlify.app/api/mocks \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
     "id": "1",
     "name": "My API",
@@ -110,29 +121,31 @@ curl -X POST https://mock-a.netlify.app/api/mocks \
   }'
 ```
 
-### 2. Call your mock endpoints
+### 2️⃣ Call your mock endpoints (no auth needed)
 
 ```bash
-# List users
+# 📋 List users
 curl https://mock-a.netlify.app/api/mock/my-api/users
 
-# Create a user
+# ➕ Create a user
 curl -X POST https://mock-a.netlify.app/api/mock/my-api/users
 
-# Get a single user (path params supported)
+# 👤 Get a single user (path params supported)
 curl https://mock-a.netlify.app/api/mock/my-api/users/42
 
-# Delete a user
+# 🗑️ Delete a user
 curl -X DELETE https://mock-a.netlify.app/api/mock/my-api/users/42
 ```
 
-### 3. Manage from the dashboard
+### 3️⃣ Manage from the dashboard
 
 Go to [mock-a.netlify.app/dashboard](https://mock-a.netlify.app/dashboard) to view, expand, copy URLs, export configs, or delete your mock servers.
 
-## API Reference
+## 📡 API Reference
 
-### `POST /api/mocks` — Create a mock project
+> **Note:** All management endpoints (`/api/mocks`) require authentication via `Authorization: Bearer <token>`. Mock serving endpoints (`/api/mock/{slug}/*`) are public.
+
+### `POST /api/mocks` — Create a mock project 🔐
 
 **Body:**
 
@@ -159,19 +172,19 @@ Go to [mock-a.netlify.app/dashboard](https://mock-a.netlify.app/dashboard) to vi
 
 **Response:** `201` with the created project.
 
-### `GET /api/mocks` — List all mock projects
+### `GET /api/mocks` — List your mock projects 🔐
 
-**Response:** `200` with an array of projects.
+**Response:** `200` with an array of your projects.
 
-### `PUT /api/mocks` — Update a mock project
+### `PUT /api/mocks` — Update a mock project 🔐
 
-**Body:** Same as POST, must include `slug` of existing project.
+**Body:** Same as POST, must include `slug` of existing project you own.
 
-### `DELETE /api/mocks?slug=my-api` — Delete a mock project
+### `DELETE /api/mocks?slug=my-api` — Delete a mock project 🔐
 
 **Response:** `200` with `{ "success": true }`.
 
-### `{METHOD} /api/mock/{slug}/{path}` — Hit a mock endpoint
+### `{METHOD} /api/mock/{slug}/{path}` — Hit a mock endpoint 🌍
 
 Matches the method and path against the project's endpoints and returns the configured response.
 
@@ -180,46 +193,52 @@ Matches the method and path against the project's endpoints and returns the conf
 - `X-Mock-Server: Mocka`
 - `X-Mock-Project: {slug}`
 
-### `OPTIONS /api/mock/{slug}/{path}` — CORS preflight
+### `OPTIONS /api/mock/{slug}/{path}` — CORS preflight 🌍
 
 Returns `204` with full CORS headers.
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 src/
 ├── app/
-│   ├── page.tsx                            # Landing page
-│   ├── create/page.tsx                     # Mock creation form
-│   ├── dashboard/page.tsx                  # Mock management dashboard
+│   ├── page.tsx                            # 🏠 Landing page
+│   ├── create/page.tsx                     # ✏️ Mock creation form (auth required)
+│   ├── dashboard/page.tsx                  # 📊 Mock management dashboard (auth required)
 │   ├── api/
-│   │   ├── mocks/route.ts                 # CRUD API for mock projects
-│   │   └── mock/[slug]/[...path]/route.ts  # Mock server endpoint
+│   │   ├── mocks/route.ts                 # 🔐 CRUD API for mock projects
+│   │   └── mock/[slug]/[...path]/route.ts  # 🌍 Mock server endpoint (public)
 │   ├── layout.tsx
 │   └── globals.css
 ├── components/
-│   ├── Navbar.tsx
-│   └── EndpointForm.tsx
+│   ├── Navbar.tsx                          # 🧭 Navigation with auth state
+│   └── EndpointForm.tsx                    # 📝 Endpoint configuration form
 └── lib/
-    ├── types.ts                            # TypeScript interfaces
-    ├── store.ts                            # In-memory data store
-    └── utils.ts                            # Helper functions
+    ├── auth.tsx                            # 🔐 Netlify Identity auth context
+    ├── auth-server.ts                      # 🔑 JWT token extraction for API routes
+    ├── types.ts                            # 📋 TypeScript interfaces
+    ├── store.ts                            # 💾 Per-user in-memory data store
+    └── utils.ts                            # 🛠️ Helper functions
 ```
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS 4
-- **Hosting:** [Netlify](https://netlify.com) with `@netlify/plugin-nextjs`
+| | Technology |
+|---|---|
+| ⚡ | [Next.js 16](https://nextjs.org/) — App Router |
+| 📘 | [TypeScript](https://www.typescriptlang.org/) |
+| 🎨 | [Tailwind CSS 4](https://tailwindcss.com/) |
+| 🔐 | [Netlify Identity](https://docs.netlify.com/security/secure-access-to-sites/identity/) |
+| 🚀 | [Netlify](https://netlify.com/) with `@netlify/plugin-nextjs` |
 
-## Self-Hosting
+## 🖥️ Self-Hosting
 
 ### Netlify (recommended)
 
 1. Fork this repo
-2. Connect to Netlify via "Import an existing project"
+2. Connect to Netlify → "Import an existing project"
 3. Deploy — `netlify.toml` handles everything
+4. Enable **Netlify Identity** in Site settings → Identity → Enable
 
 ### Docker
 
@@ -234,27 +253,29 @@ EXPOSE 3000
 CMD ["npm", "start"]
 ```
 
-## Persistence
+> ⚠️ Docker mode won't have Netlify Identity. You'll need to swap the auth layer for another provider (e.g. Supabase Auth, Clerk).
+
+## 💾 Persistence
 
 The current version uses an **in-memory store** — data resets on server restart. For production persistence, swap `src/lib/store.ts` with:
 
 | Option | Free Tier | Notes |
 |--------|-----------|-------|
-| Supabase | 500 MB | PostgreSQL, auth included |
-| Turso | 8 GB | SQLite on the edge |
-| Upstash Redis | 10K cmds/day | Serverless Redis |
-| PlanetScale | 1 GB | MySQL-compatible |
+| 🐘 Supabase | 500 MB | PostgreSQL, auth included |
+| 🪶 Turso | 8 GB | SQLite on the edge |
+| 🔴 Upstash Redis | 10K cmds/day | Serverless Redis |
+| 🌐 PlanetScale | 1 GB | MySQL-compatible |
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
 
-## License
+## 📄 License
 
 MIT
 
 ---
 
 <div align="center">
-  <sub>Built with Next.js. Hosted on Netlify.</sub>
+  <sub>Built with ⚡ Next.js — Hosted on 🌐 Netlify</sub>
 </div>
