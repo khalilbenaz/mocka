@@ -13,6 +13,7 @@ export interface MockEndpoint {
 
 export interface MockProject {
   id: string;
+  userId: string;
   name: string;
   slug: string;
   description: string;

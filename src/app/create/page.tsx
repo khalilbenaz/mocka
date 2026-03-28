@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import EndpointForm from "@/components/EndpointForm";
+import { useAuth } from "@/lib/auth";
 import { MockEndpoint } from "@/lib/types";
 import { generateId, generateSlug, methodColor } from "@/lib/utils";
 
 export default function CreatePage() {
   const router = useRouter();
+  const { user, login, loading, getToken } = useAuth();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [endpoints, setEndpoints] = useState<MockEndpoint[]>([]);
@@ -50,9 +52,13 @@ export default function CreatePage() {
     setError("");
 
     try {
+      const token = getToken();
       const res = await fetch("/api/mocks", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           id: generateId(),
           name: name.trim(),
@@ -101,6 +107,38 @@ export default function CreatePage() {
     };
     input.click();
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="text-center py-20 text-muted">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="max-w-md mx-auto px-4 py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+            M
+          </div>
+          <h2 className="text-xl font-bold mb-2">Sign in to create mocks</h2>
+          <p className="text-sm text-muted mb-6">Create an account to start building mock servers.</p>
+          <div className="flex justify-center gap-3">
+            <button onClick={login} className="text-sm text-muted hover:text-foreground border border-border px-4 py-2 rounded-lg transition-colors">
+              Login
+            </button>
+            <button onClick={login} className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">
+              Sign Up Free
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

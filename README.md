@@ -28,14 +28,15 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 - **CORS Enabled** — All endpoints include CORS headers by default
 - **Import/Export** — Save and share mock configurations as JSON files
 - **Shareable URLs** — Each mock project gets a unique, shareable base URL
+- **User Accounts** — Netlify Identity authentication, each user has their own mocks
 - **Dark UI** — Clean, modern dark interface
 
 ## Quick Start
 
 ### Use the hosted version
 
-1. Go to [mock-a.netlify.app/create](https://mock-a.netlify.app/create)
-2. Name your project and add endpoints
+1. Go to [mock-a.netlify.app](https://mock-a.netlify.app) and sign up (free)
+2. Go to [/create](https://mock-a.netlify.app/create), name your project and add endpoints
 3. Click **Create Mock Server**
 4. Your mock is live — use the base URL in your frontend
 

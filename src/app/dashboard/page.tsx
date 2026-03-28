@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { useAuth } from "@/lib/auth";
 import { MockProject } from "@/lib/types";
 import { methodColor, copyToClipboard } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ export default function DashboardPage() {
 function DashboardContent() {
   const searchParams = useSearchParams();
   const created = searchParams.get("created");
+  const { user, login, loading: authLoading, getToken } = useAuth();
 
   const [projects, setProjects] = useState<MockProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,24 +27,41 @@ function DashboardContent() {
   const [expandedSlug, setExpandedSlug] = useState<string | null>(created);
 
   const fetchProjects = useCallback(async () => {
+    const token = getToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     try {
-      const res = await fetch("/api/mocks");
-      const data = await res.json();
-      setProjects(data);
+      const res = await fetch("/api/mocks", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProjects(data);
+      }
     } catch {
       // ignore
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getToken]);
 
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
+    if (!authLoading && user) {
+      fetchProjects();
+    } else if (!authLoading) {
+      setLoading(false);
+    }
+  }, [authLoading, user, fetchProjects]);
 
   const handleDelete = async (slug: string) => {
     if (!confirm("Delete this mock project?")) return;
-    await fetch(`/api/mocks?slug=${slug}`, { method: "DELETE" });
+    const token = getToken();
+    await fetch(`/api/mocks?slug=${slug}`, {
+      method: "DELETE",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
     setProjects(projects.filter((p) => p.slug !== slug));
   };
 
@@ -54,7 +73,8 @@ function DashboardContent() {
   };
 
   const handleExport = (project: MockProject) => {
-    const data = JSON.stringify(project, null, 2);
+    const { userId, ...exportData } = project;
+    const data = JSON.stringify(exportData, null, 2);
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -63,6 +83,38 @@ function DashboardContent() {
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="text-center py-20 text-muted">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="max-w-md mx-auto px-4 py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+            M
+          </div>
+          <h2 className="text-xl font-bold mb-2">Sign in to view your mocks</h2>
+          <p className="text-sm text-muted mb-6">Login to access your mock servers dashboard.</p>
+          <div className="flex justify-center gap-3">
+            <button onClick={login} className="text-sm text-muted hover:text-foreground border border-border px-4 py-2 rounded-lg transition-colors">
+              Login
+            </button>
+            <button onClick={login} className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">
+              Sign Up Free
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
