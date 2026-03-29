@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProject, logRequest } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 function extractParams(pattern: string, actual: string): Record<string, string> | null {
   const patternParts = pattern.split("/").filter(Boolean);
   const actualParts = actual.split("/").filter(Boolean);
@@ -43,6 +45,7 @@ function corsHeaders() {
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
     "Access-Control-Max-Age": "86400",
+    "Cache-Control": "no-store, no-cache, must-revalidate",
   };
 }
 

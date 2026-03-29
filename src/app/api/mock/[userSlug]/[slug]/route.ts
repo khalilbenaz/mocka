@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getProject } from "@/lib/store";
 import type { MockEndpoint } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 type RouteParams = { params: Promise<{ userSlug: string; slug: string }> };
 
 const METHOD_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -117,6 +119,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   return new NextResponse(html, {
     status: 200,
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    },
   });
 }
