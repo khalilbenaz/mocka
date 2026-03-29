@@ -6,7 +6,7 @@
 
 Create mock API servers in seconds. Define your endpoints, get a live URL, and test your frontend without waiting for the backend.
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-mock--a.netlify.app-6366f1?style=for-the-badge&logo=netlify&logoColor=white)](https://mock-a.netlify.app)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-mocka.qzz.io-6366f1?style=for-the-badge&logo=netlify&logoColor=white)](https://mocka.qzz.io)
 [![GitHub](https://img.shields.io/badge/GitHub-khalilbenaz%2Fmocka-181717?style=for-the-badge&logo=github)](https://github.com/khalilbenaz/mocka)
 
 ![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=next.js&logoColor=white)
@@ -45,8 +45,8 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 
 ### Use the hosted version
 
-1. 🔑 Go to [mock-a.netlify.app](https://mock-a.netlify.app) and **sign up** with GitHub, GitLab, Google or email
-2. ✏️ Go to [/create](https://mock-a.netlify.app/create), name your project and add endpoints
+1. 🔑 Go to [mocka.qzz.io](https://mocka.qzz.io) and **sign up** with GitHub, GitLab, Google or email
+2. ✏️ Go to [/create](https://mocka.qzz.io/create), name your project and add endpoints
 4. 🚀 Click **Create Mock Server**
 5. 🎉 Your mock is live — use the base URL in your frontend
 
@@ -78,7 +78,7 @@ Open [http://localhost:3000](http://localhost:3000).
 Use the web UI at `/create` or send an authenticated POST request:
 
 ```bash
-curl -X POST https://mock-a.netlify.app/api/mocks \
+curl -X POST https://mocka.qzz.io/api/mocks \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -135,21 +135,21 @@ curl -X POST https://mock-a.netlify.app/api/mocks \
 
 ```bash
 # 📋 List users
-curl https://mock-a.netlify.app/api/mock/my-api/users
+curl https://mocka.qzz.io/api/mock/my-api/users
 
 # ➕ Create a user
-curl -X POST https://mock-a.netlify.app/api/mock/my-api/users
+curl -X POST https://mocka.qzz.io/api/mock/my-api/users
 
 # 👤 Get a single user (path params supported)
-curl https://mock-a.netlify.app/api/mock/my-api/users/42
+curl https://mocka.qzz.io/api/mock/my-api/users/42
 
 # 🗑️ Delete a user
-curl -X DELETE https://mock-a.netlify.app/api/mock/my-api/users/42
+curl -X DELETE https://mocka.qzz.io/api/mock/my-api/users/42
 ```
 
 ### 3️⃣ Manage from the dashboard
 
-Go to [mock-a.netlify.app/dashboard](https://mock-a.netlify.app/dashboard) to view, expand, copy URLs, export configs, or delete your mock servers.
+Go to [mocka.qzz.io/dashboard](https://mocka.qzz.io/dashboard) to view, expand, copy URLs, export configs, or delete your mock servers.
 
 ## 📡 API Reference
 
