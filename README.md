@@ -12,6 +12,7 @@ Create mock API servers in seconds. Define your endpoints, get a live URL, and t
 ![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Clerk](https://img.shields.io/badge/Clerk-6C47FF?style=flat-square&logo=clerk&logoColor=white)
 ![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=flat-square&logo=netlify&logoColor=white)
 
 </div>
@@ -28,8 +29,8 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 
 | Feature | Description |
 |---------|-------------|
-| 🔐 **User Accounts** | Sign up / login with Netlify Identity — each user has their own private mocks |
-| 📬 **Email Confirmation** | Account verification by email on signup |
+| 🔐 **User Accounts** | Sign up / login with Clerk — GitHub, GitLab, Google or email |
+| 🔑 **Social Login** | One-click sign-in with GitHub, GitLab, or Google |
 | 🌐 **All HTTP Methods** | GET, POST, PUT, PATCH, DELETE |
 | 📦 **Any Response** | JSON, XML, HTML, plain text with any status code |
 | 🏷️ **Custom Headers** | Add any response headers you need |
@@ -44,9 +45,8 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 
 ### Use the hosted version
 
-1. 🔑 Go to [mock-a.netlify.app](https://mock-a.netlify.app) and **sign up** (free)
-2. 📧 Confirm your email
-3. ✏️ Go to [/create](https://mock-a.netlify.app/create), name your project and add endpoints
+1. 🔑 Go to [mock-a.netlify.app](https://mock-a.netlify.app) and **sign up** with GitHub, GitLab, Google or email
+2. ✏️ Go to [/create](https://mock-a.netlify.app/create), name your project and add endpoints
 4. 🚀 Click **Create Mock Server**
 5. 🎉 Your mock is live — use the base URL in your frontend
 
@@ -56,6 +56,16 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 git clone https://github.com/khalilbenaz/mocka.git
 cd mocka
 npm install
+```
+
+Create a `.env.local` file with your [Clerk](https://clerk.com/) keys:
+
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+```
+
+```bash
 npm run dev
 ```
 
@@ -213,9 +223,10 @@ src/
 ├── components/
 │   ├── Navbar.tsx                          # 🧭 Navigation with auth state
 │   └── EndpointForm.tsx                    # 📝 Endpoint configuration form
+├── proxy.ts                               # 🛡️ Clerk middleware (Next.js 16 proxy)
 └── lib/
-    ├── auth.tsx                            # 🔐 Netlify Identity auth context
-    ├── auth-server.ts                      # 🔑 JWT token extraction for API routes
+    ├── auth.tsx                            # 🔐 Clerk client-side auth hooks
+    ├── auth-server.ts                      # 🔑 Clerk server-side auth
     ├── types.ts                            # 📋 TypeScript interfaces
     ├── store.ts                            # 💾 Per-user in-memory data store
     └── utils.ts                            # 🛠️ Helper functions
@@ -228,7 +239,7 @@ src/
 | ⚡ | [Next.js 16](https://nextjs.org/) — App Router |
 | 📘 | [TypeScript](https://www.typescriptlang.org/) |
 | 🎨 | [Tailwind CSS 4](https://tailwindcss.com/) |
-| 🔐 | [Netlify Identity](https://docs.netlify.com/security/secure-access-to-sites/identity/) |
+| 🔐 | [Clerk](https://clerk.com/) — GitHub, GitLab, Google, Email |
 | 🚀 | [Netlify](https://netlify.com/) with `@netlify/plugin-nextjs` |
 
 ## 🖥️ Self-Hosting
@@ -237,8 +248,11 @@ src/
 
 1. Fork this repo
 2. Connect to Netlify → "Import an existing project"
-3. Deploy — `netlify.toml` handles everything
-4. Enable **Netlify Identity** in Site settings → Identity → Enable
+3. Add environment variables in Netlify:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+4. Deploy — `netlify.toml` handles everything
+5. In [Clerk Dashboard](https://dashboard.clerk.com/), enable GitHub, GitLab, Google under **Social connections**
 
 ### Docker
 
@@ -253,7 +267,7 @@ EXPOSE 3000
 CMD ["npm", "start"]
 ```
 
-> ⚠️ Docker mode won't have Netlify Identity. You'll need to swap the auth layer for another provider (e.g. Supabase Auth, Clerk).
+> ⚠️ Docker mode requires Clerk env variables — set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
 
 ## 💾 Persistence
 
