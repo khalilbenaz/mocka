@@ -349,11 +349,67 @@ function DashboardContent() {
                         </div>
                       )}
 
-                      {/* Endpoint edit form */}
-                      {(isEditing || isAdding) && (
-                        <div className="border border-accent/30 rounded-lg p-4 mb-4 bg-background">
+                      {/* Endpoints */}
+                      <div className="space-y-2">
+                        {project.endpoints.map((ep) => {
+                          const isEditingThis = isEditing && editingEndpoint?.id === ep.id;
+
+                          return isEditingThis ? (
+                            <div key={ep.id} className="border border-accent/30 rounded-lg p-4 bg-background">
+                              <EndpointForm
+                                endpoint={editingEndpoint}
+                                onSave={(updated) => handleSaveEndpoint(project, updated)}
+                                onCancel={() => {
+                                  setEditingProject(null);
+                                  setEditingEndpoint(undefined);
+                                  setShowAddEndpoint(null);
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div
+                              key={ep.id}
+                              className="flex items-center justify-between px-4 py-2.5 bg-background border border-border rounded-lg group"
+                            >
+                              <div className="flex items-center gap-3 font-mono text-sm">
+                                <span
+                                  className={`px-2 py-0.5 rounded text-xs font-bold ${methodColor(ep.method)}`}
+                                >
+                                  {ep.method}
+                                </span>
+                                <span>{ep.path}</span>
+                                <span className="text-muted">-&gt;</span>
+                                <span className="text-accent">{ep.statusCode}</span>
+                                {ep.delay > 0 && (
+                                  <span className="text-muted text-xs">+{ep.delay}ms</span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => handleEditEndpoint(project, ep)}
+                                  disabled={savingSlug === project.slug}
+                                  className="text-xs text-accent hover:text-accent-hover px-2 py-1 rounded transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleRemoveEndpoint(project, ep.id)}
+                                  disabled={savingSlug === project.slug || project.endpoints.length <= 1}
+                                  className="text-xs text-danger hover:text-danger/80 px-2 py-1 rounded transition-colors disabled:opacity-30"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Add endpoint form (inline at bottom) */}
+                      {isAdding && !editingEndpoint && (
+                        <div className="mt-2 border border-accent/30 rounded-lg p-4 bg-background">
                           <EndpointForm
-                            endpoint={editingEndpoint}
+                            endpoint={undefined}
                             onSave={(ep) => handleSaveEndpoint(project, ep)}
                             onCancel={() => {
                               setEditingProject(null);
@@ -363,46 +419,6 @@ function DashboardContent() {
                           />
                         </div>
                       )}
-
-                      {/* Endpoints */}
-                      <div className="space-y-2">
-                        {project.endpoints.map((ep) => (
-                          <div
-                            key={ep.id}
-                            className="flex items-center justify-between px-4 py-2.5 bg-background border border-border rounded-lg group"
-                          >
-                            <div className="flex items-center gap-3 font-mono text-sm">
-                              <span
-                                className={`px-2 py-0.5 rounded text-xs font-bold ${methodColor(ep.method)}`}
-                              >
-                                {ep.method}
-                              </span>
-                              <span>{ep.path}</span>
-                              <span className="text-muted">-&gt;</span>
-                              <span className="text-accent">{ep.statusCode}</span>
-                              {ep.delay > 0 && (
-                                <span className="text-muted text-xs">+{ep.delay}ms</span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => handleEditEndpoint(project, ep)}
-                                disabled={savingSlug === project.slug}
-                                className="text-xs text-accent hover:text-accent-hover px-2 py-1 rounded transition-colors"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleRemoveEndpoint(project, ep.id)}
-                                disabled={savingSlug === project.slug || project.endpoints.length <= 1}
-                                className="text-xs text-danger hover:text-danger/80 px-2 py-1 rounded transition-colors disabled:opacity-30"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
 
                       {/* Add endpoint button */}
                       {!isEditing && !isAdding && (
