@@ -29,7 +29,11 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `try{const t=localStorage.getItem("mocka-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}` }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <ClerkProvider>
           {children}

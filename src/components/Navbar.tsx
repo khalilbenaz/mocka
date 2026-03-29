@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -43,12 +44,14 @@ export default function Navbar() {
               Dashboard
             </Link>
             <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
+              <ThemeToggle />
               <UserButton />
             </div>
           </Show>
 
           <Show when="signed-out">
             <div className="flex items-center gap-1 ml-2">
+              <ThemeToggle />
               <SignInButton mode="modal">
                 <button className="text-sm text-muted hover:text-foreground px-3 py-1.5 rounded-lg transition-colors">
                   Login

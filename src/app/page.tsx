@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
             <Link href="/create" className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">
               Create Mock
             </Link>
+            <ThemeToggle />
           </div>
         </nav>
 

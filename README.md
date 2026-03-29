@@ -37,12 +37,13 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 | **Custom Headers** | Add any response headers you need |
 | **Simulated Latency** | Add delays (ms) to mimic real-world network conditions |
 | **Path Parameters** | Support for `:param` style dynamic segments (e.g. `/users/:id`) |
+| **Response Templating** | Dynamic values: `{{id}}`, `{{timestamp}}`, `{{randomId}}`, `{{randomInt}}` |
 | **CORS Ready** | All endpoints include CORS headers by default |
 | **Import / Export** | Save and share mock configurations as JSON files |
 | **Shareable URLs** | Each mock project gets a unique, public base URL |
 | **Swagger Page** | Visit a mock's base URL to see a Swagger-like listing of all its endpoints |
+| **Dark & Light Theme** | Toggle between dark and light mode |
 | **Persistent Storage** | Cloudflare D1 (SQLite at the edge) — data survives deployments |
-| **Dark UI** | Clean, modern dark interface |
 
 ## Quick Start
 
@@ -77,58 +78,58 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## How It Works
+---
 
-### 1. Create a mock project
+## API Reference
 
-Use the web UI at `/create` or send an authenticated POST request:
+### Authentication
+
+All management endpoints (`/api/mocks`, `/api/stats`) require a **Clerk session**. There are two ways to authenticate:
+
+#### 1. Session cookie (browser — automatic)
+
+When using Mocka from the browser, Clerk handles authentication via session cookies. No extra headers needed.
+
+#### 2. Bearer token (programmatic access)
+
+For API calls from scripts, CI/CD, Postman, or other tools, use a **Clerk JWT token** in the `Authorization` header:
+
+```bash
+curl -H "Authorization: Bearer YOUR_CLERK_JWT_TOKEN" https://mocka.qzz.io/api/mocks
+```
+
+**How to get your token:**
+
+- From the browser console (while logged in): `await window.Clerk.session.getToken()`
+- From Clerk SDK: `const token = await getToken()`
+- From Clerk dashboard: generate a long-lived API token
+
+> **Note:** Mock serving endpoints (`/api/mock/{userSlug}/{slug}/*`) are **public** — no authentication needed.
+
+---
+
+### Projects
+
+#### `POST /api/mocks` — Create a mock project
+
+Creates a new mock project with one or more endpoints.
 
 ```bash
 curl -X POST https://mocka.qzz.io/api/mocks \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
-    "id": "1",
-    "name": "My API",
-    "slug": "my-api",
-    "description": "User management mock",
+    "id": "proj_1",
+    "name": "Users API",
+    "slug": "users-api",
+    "description": "Mock for user management",
     "endpoints": [
       {
-        "id": "e1",
+        "id": "ep_1",
         "method": "GET",
         "path": "/users",
         "statusCode": 200,
         "responseBody": "[{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]",
-        "contentType": "application/json",
-        "headers": {},
-        "delay": 0
-      },
-      {
-        "id": "e2",
-        "method": "POST",
-        "path": "/users",
-        "statusCode": 201,
-        "responseBody": "{\"id\": 3, \"created\": true}",
-        "contentType": "application/json",
-        "headers": {},
-        "delay": 0
-      },
-      {
-        "id": "e3",
-        "method": "GET",
-        "path": "/users/:id",
-        "statusCode": 200,
-        "responseBody": "{\"id\": 1, \"name\": \"Alice\", \"email\": \"alice@example.com\"}",
-        "contentType": "application/json",
-        "headers": {},
-        "delay": 100
-      },
-      {
-        "id": "e4",
-        "method": "DELETE",
-        "path": "/users/:id",
-        "statusCode": 204,
-        "responseBody": "",
         "contentType": "application/json",
         "headers": {},
         "delay": 0
@@ -137,81 +138,300 @@ curl -X POST https://mocka.qzz.io/api/mocks \
   }'
 ```
 
-### 2. Call your mock endpoints (no auth needed)
+**Request body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | yes | Unique project ID (you generate it) |
+| `name` | string | yes | Display name |
+| `slug` | string | yes | URL slug (auto-incremented if taken: `my-api` → `my-api-1`) |
+| `description` | string | no | Project description |
+| `endpoints` | array | yes | At least one endpoint (see [Endpoint Object](#endpoint-object)) |
+
+**Response:** `201` with the created project object (includes generated `userSlug`).
+
+---
+
+#### `GET /api/mocks` — List your mock projects
+
+Returns all projects for the authenticated user, ordered by last update.
 
 ```bash
-# List users
-curl https://mocka.qzz.io/api/mock/{userSlug}/my-api/users
-
-# Create a user
-curl -X POST https://mocka.qzz.io/api/mock/{userSlug}/my-api/users
-
-# Get a single user (path params supported)
-curl https://mocka.qzz.io/api/mock/{userSlug}/my-api/users/42
-
-# Delete a user
-curl -X DELETE https://mocka.qzz.io/api/mock/{userSlug}/my-api/users/42
+curl -H "Authorization: Bearer YOUR_TOKEN" https://mocka.qzz.io/api/mocks
 ```
 
-### 3. Manage from the dashboard
+**Response:** `200`
 
-Go to [mocka.qzz.io/dashboard](https://mocka.qzz.io/dashboard) to view, expand, copy URLs, export configs, or delete your mock servers.
+```json
+[
+  {
+    "id": "proj_1",
+    "userId": "user_xxx",
+    "userSlug": "2mojs3",
+    "name": "Users API",
+    "slug": "users-api",
+    "description": "Mock for user management",
+    "endpoints": [...],
+    "createdAt": "2025-03-29T10:00:00.000Z",
+    "updatedAt": "2025-03-29T10:00:00.000Z"
+  }
+]
+```
 
-## API Reference
+---
 
-> **Note:** All management endpoints (`/api/mocks`) require authentication via Clerk session. Mock serving endpoints (`/api/mock/{userSlug}/{slug}/*`) are public.
+#### `PUT /api/mocks` — Update a mock project
 
-### `POST /api/mocks` — Create a mock project
+Updates an existing project you own. Send the full project object.
 
-**Body:**
+```bash
+curl -X PUT https://mocka.qzz.io/api/mocks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "id": "proj_1",
+    "name": "Users API v2",
+    "slug": "users-api",
+    "description": "Updated mock",
+    "endpoints": [
+      {
+        "id": "ep_1",
+        "method": "GET",
+        "path": "/users",
+        "statusCode": 200,
+        "responseBody": "[{\"id\": 1, \"name\": \"Alice\", \"role\": \"admin\"}]",
+        "contentType": "application/json",
+        "headers": { "X-API-Version": "2" },
+        "delay": 50
+      },
+      {
+        "id": "ep_2",
+        "method": "POST",
+        "path": "/users",
+        "statusCode": 201,
+        "responseBody": "{\"id\": {{randomInt}}, \"created\": true, \"timestamp\": \"{{timestamp}}\"}",
+        "contentType": "application/json",
+        "headers": {},
+        "delay": 0
+      }
+    ]
+  }'
+```
+
+**Response:** `200` with the updated project.
+
+---
+
+#### `DELETE /api/mocks?slug={slug}` — Delete a mock project
+
+Deletes a project and all its associated request logs.
+
+```bash
+curl -X DELETE "https://mocka.qzz.io/api/mocks?slug=users-api" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+**Response:** `200`
+
+```json
+{ "success": true }
+```
+
+---
+
+### Mock Serving (Public — No Auth)
+
+#### `{METHOD} /api/mock/{userSlug}/{slug}/{path}` — Hit a mock endpoint
+
+Matches the HTTP method and path against the project's endpoints and returns the configured response.
+
+```bash
+# GET request
+curl https://mocka.qzz.io/api/mock/2mojs3/users-api/users
+
+# POST request
+curl -X POST https://mocka.qzz.io/api/mock/2mojs3/users-api/users
+
+# With path parameters
+curl https://mocka.qzz.io/api/mock/2mojs3/users-api/users/42
+
+# DELETE request
+curl -X DELETE https://mocka.qzz.io/api/mock/2mojs3/users-api/users/42
+```
+
+**Response headers always include:**
+
+| Header | Value |
+|--------|-------|
+| `Access-Control-Allow-Origin` | `*` |
+| `Access-Control-Allow-Methods` | `GET, POST, PUT, PATCH, DELETE, OPTIONS` |
+| `X-Mock-Server` | `Mocka` |
+| `X-Mock-Project` | `{userSlug}/{slug}` |
+| `Cache-Control` | `no-store, no-cache, must-revalidate` |
+
+**Error responses:**
+
+- `404` — Project not found or no matching endpoint. Returns available endpoints list:
 
 ```json
 {
-  "id": "string",
-  "name": "string",
-  "slug": "string",
-  "description": "string",
-  "endpoints": [
-    {
-      "id": "string",
-      "method": "GET | POST | PUT | PATCH | DELETE",
-      "path": "/your/path",
-      "statusCode": 200,
-      "responseBody": "string",
-      "contentType": "application/json",
-      "headers": {},
-      "delay": 0
-    }
+  "error": "No matching endpoint",
+  "method": "GET",
+  "path": "/unknown",
+  "available": ["GET /users", "POST /users", "GET /users/:id"]
+}
+```
+
+---
+
+#### `GET /api/mock/{userSlug}/{slug}` — Swagger page
+
+Returns an **HTML page** listing all endpoints with method, path, status code, curl examples, and response bodies. Share this URL as documentation for your mock API.
+
+```
+https://mocka.qzz.io/api/mock/2mojs3/users-api
+```
+
+---
+
+#### `OPTIONS /api/mock/{userSlug}/{slug}/{path}` — CORS preflight
+
+Returns `204` with full CORS headers.
+
+---
+
+### Analytics
+
+#### `GET /api/stats?slug={slug}` — Get project statistics
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  "https://mocka.qzz.io/api/stats?slug=users-api"
+```
+
+**Response:** `200`
+
+```json
+{
+  "totalCalls": 1234,
+  "last24h": 56,
+  "avgResponseMs": 12,
+  "topEndpoints": [
+    { "method": "GET", "path": "/users", "count": 890 },
+    { "method": "POST", "path": "/users", "count": 234 },
+    { "method": "GET", "path": "/users/42", "count": 110 }
   ]
 }
 ```
 
-**Response:** `201` with the created project.
+---
 
-### `GET /api/mocks` — List your mock projects
+### Endpoint Object
 
-**Response:** `200` with an array of your projects.
+Each endpoint in a project has the following structure:
 
-### `PUT /api/mocks` — Update a mock project
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | yes | Unique endpoint ID |
+| `method` | string | yes | `GET`, `POST`, `PUT`, `PATCH`, or `DELETE` |
+| `path` | string | yes | URL path (e.g. `/users/:id`) |
+| `statusCode` | number | yes | HTTP status code (100–599) |
+| `responseBody` | string | yes | Response body (JSON string, XML, HTML, plain text) |
+| `contentType` | string | yes | MIME type (e.g. `application/json`, `text/xml`) |
+| `headers` | object | yes | Custom response headers (key-value pairs) |
+| `delay` | number | yes | Simulated latency in milliseconds |
 
-**Body:** Same as POST, must include `slug` of existing project you own.
+---
 
-### `DELETE /api/mocks?slug=my-api` — Delete a mock project
+### Path Parameters
 
-**Response:** `200` with `{ "success": true }`.
+Use `:param` syntax in endpoint paths to define dynamic segments:
 
-### `{METHOD} /api/mock/{userSlug}/{slug}/{path}` — Hit a mock endpoint
+| Pattern | URL | Extracted params |
+|---------|-----|-----------------|
+| `/users/:id` | `/users/42` | `{ "id": "42" }` |
+| `/posts/:postId/comments/:commentId` | `/posts/5/comments/12` | `{ "postId": "5", "commentId": "12" }` |
+| `/files/:path` | `/files/report.pdf` | `{ "path": "report.pdf" }` |
 
-Matches the method and path against the project's endpoints and returns the configured response.
+---
 
-**Response headers always include:**
-- `Access-Control-Allow-Origin: *`
-- `X-Mock-Server: Mocka`
-- `X-Mock-Project: {userSlug}/{slug}`
+### Response Templating
 
-### `OPTIONS /api/mock/{userSlug}/{slug}/{path}` — CORS preflight
+Use `{{variable}}` in response bodies to inject dynamic values:
 
-Returns `204` with full CORS headers.
+| Template | Output | Description |
+|----------|--------|-------------|
+| `{{id}}` | `42` | Path parameter value (shorthand for `{{params.id}}`) |
+| `{{params.id}}` | `42` | Explicit path parameter reference |
+| `{{timestamp}}` | `2025-03-29T10:30:00.000Z` | Current ISO 8601 timestamp |
+| `{{randomId}}` | `a1b2c3d4` | Random 8-character alphanumeric string |
+| `{{randomInt}}` | `7342` | Random integer between 0 and 10000 |
+| `{{now}}` | `1711705800000` | Current epoch timestamp in milliseconds |
+
+**Example response body:**
+
+```json
+{
+  "id": "{{randomInt}}",
+  "userId": "{{id}}",
+  "token": "tok_{{randomId}}",
+  "createdAt": "{{timestamp}}",
+  "serverTime": {{now}}
+}
+```
+
+---
+
+### Import / Export
+
+#### Export (from dashboard)
+
+Click **Export** on any project to download a JSON file:
+
+```json
+{
+  "id": "proj_1",
+  "name": "Users API",
+  "slug": "users-api",
+  "description": "Mock for user management",
+  "endpoints": [...],
+  "createdAt": "2025-03-29T10:00:00.000Z",
+  "updatedAt": "2025-03-29T10:00:00.000Z"
+}
+```
+
+#### Import (on create page)
+
+Click **Import JSON** on the `/create` page and select a `.json` file. Fields `name`, `description`, and `endpoints` are loaded into the form.
+
+#### Import via API
+
+```bash
+# Create a project from a JSON file
+curl -X POST https://mocka.qzz.io/api/mocks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d @my-mock.json
+```
+
+---
+
+### Error Codes
+
+| Status | Meaning |
+|--------|---------|
+| `200` | Success |
+| `201` | Created |
+| `204` | No content (DELETE success, CORS preflight) |
+| `400` | Bad request — missing required fields |
+| `401` | Authentication required |
+| `404` | Project or endpoint not found |
+
+---
+
+## Themes
+
+Mocka supports **dark** and **light** themes. Click the sun/moon icon in the navbar to toggle. Your preference is saved in `localStorage`.
 
 ## Project Structure
 
@@ -223,14 +443,16 @@ src/
 │   ├── dashboard/page.tsx                        # Mock management dashboard (auth required)
 │   ├── api/
 │   │   ├── mocks/route.ts                        # CRUD API for mock projects
+│   │   ├── stats/route.ts                        # Analytics API
 │   │   └── mock/[userSlug]/[slug]/
 │   │       ├── route.ts                          # Swagger page (mock base URL)
 │   │       └── [...path]/route.ts                # Mock server endpoint (public)
 │   ├── layout.tsx
-│   └── globals.css
+│   └── globals.css                               # Dark + light theme variables
 ├── components/
 │   ├── Navbar.tsx                                # Navigation with auth state
-│   └── EndpointForm.tsx                          # Endpoint configuration form
+│   ├── EndpointForm.tsx                          # Endpoint configuration form
+│   └── ThemeToggle.tsx                           # Dark/light mode toggle
 ├── middleware.ts                                 # Clerk middleware (Edge)
 └── lib/
     ├── auth.tsx                                  # Clerk client-side auth hooks
@@ -315,6 +537,17 @@ CREATE TABLE projects (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   UNIQUE(user_slug, slug)
+);
+
+CREATE TABLE request_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_slug TEXT NOT NULL,
+  project_slug TEXT NOT NULL,
+  method TEXT NOT NULL,
+  path TEXT NOT NULL,
+  status_code INTEGER NOT NULL,
+  response_time_ms INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 ```
 
