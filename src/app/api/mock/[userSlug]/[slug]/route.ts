@@ -34,6 +34,10 @@ function renderEndpoint(ep: MockEndpoint, baseUrl: string): string {
         ${ep.rateLimit ? `<span style="font-size:10px;color:#f59e0b;background:#f59e0b15;border:1px solid #f59e0b30;padding:2px 6px;border-radius:4px">${ep.rateLimit.maxRequests}/${ep.rateLimit.windowSeconds}s</span>` : ""}
         ${ep.webhook ? `<span style="font-size:10px;color:#6366f1;background:#6366f115;border:1px solid #6366f130;padding:2px 6px;border-radius:4px">webhook</span>` : ""}
         ${ep.variants && ep.variants.length > 0 ? `<span style="font-size:10px;color:#22c55e;background:#22c55e15;border:1px solid #22c55e30;padding:2px 6px;border-radius:4px">${ep.variants.length} variant${ep.variants.length > 1 ? "s" : ""}</span>` : ""}
+        ${ep.sequence && ep.sequence.length > 0 ? `<span style="font-size:10px;color:#6366f1;background:#6366f115;border:1px solid #6366f130;padding:2px 6px;border-radius:4px">seq:${ep.sequence.length}</span>` : ""}
+        ${ep.failureRate ? `<span style="font-size:10px;color:#ef4444;background:#ef444415;border:1px solid #ef444430;padding:2px 6px;border-radius:4px">fail:${ep.failureRate}%</span>` : ""}
+        ${ep.proxyUrl ? `<span style="font-size:10px;color:#22c55e;background:#22c55e15;border:1px solid #22c55e30;padding:2px 6px;border-radius:4px">proxy</span>` : ""}
+        <button onclick="tryEndpoint(this,'${ep.method}','${escapeHtml(fullUrl)}')" style="font-size:10px;color:#6366f1;background:#6366f115;border:1px solid #6366f130;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:4px">Try it</button>
       </div>
       <div class="ep-body hidden" style="border-top:1px solid #2a2a2a;padding:16px 18px;background:#0d0d0d">
         <div style="margin-bottom:12px">
@@ -105,6 +109,28 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     ::-webkit-scrollbar-track{background:#141414}
     ::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
   </style>
+  <script>
+    async function tryEndpoint(btn,method,url){
+      const parent=btn.closest('[style*="border:1px"]');
+      let result=parent.querySelector('.try-result');
+      if(result){result.remove();return;}
+      btn.textContent='Loading...';
+      try{
+        const start=Date.now();
+        const res=await fetch(url,{method});
+        const time=Date.now()-start;
+        const body=await res.text();
+        let pretty=body;
+        try{pretty=JSON.stringify(JSON.parse(body),null,2)}catch{}
+        result=document.createElement('div');
+        result.className='try-result';
+        result.style.cssText='border-top:1px solid #2a2a2a;padding:12px 18px;background:#0a1628';
+        result.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:11px;color:#737373">RESPONSE</span><span style="font-size:12px;font-weight:700;color:'+(res.ok?'#22c55e':'#ef4444')+'">'+res.status+'</span><span style="font-size:11px;color:#737373">'+time+'ms</span></div><pre style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:6px;padding:10px 14px;font-size:12px;color:#ededed;overflow-x:auto;margin:0;max-height:300px">'+pretty.replace(/</g,'&lt;')+'</pre>';
+        parent.appendChild(result);
+      }catch(e){btn.textContent='Error';}
+      btn.textContent='Try it';
+    }
+  </script>
 </head>
 <body>
   <div style="max-width:900px;margin:0 auto;padding:24px 16px 64px">

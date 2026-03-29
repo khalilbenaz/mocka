@@ -46,6 +46,24 @@ export default function EndpointForm({ endpoint, onSave, onCancel }: Props) {
   // Conditional Responses
   const [variants, setVariants] = useState<ResponseVariant[]>(endpoint?.variants ?? []);
 
+  // Sequence Responses
+  const [sequenceEnabled, setSequenceEnabled] = useState(!!endpoint?.sequence?.length);
+  const [sequenceItems, setSequenceItems] = useState<string[]>(endpoint?.sequence ?? ['{"step": 1, "status": "pending"}', '{"step": 2, "status": "done"}']);
+
+  // Random Failure
+  const [failureRate, setFailureRate] = useState(endpoint?.failureRate ?? 0);
+
+  // Response Body from URL
+  const [responseBodyUrl, setResponseBodyUrl] = useState(endpoint?.responseBodyUrl ?? "");
+
+  // JSON Schema Validation
+  const [jsonSchemaEnabled, setJsonSchemaEnabled] = useState(!!endpoint?.jsonSchema);
+  const [jsonSchema, setJsonSchema] = useState(endpoint?.jsonSchema ?? '{"required": ["name"], "properties": {"name": {"type": "string"}}}');
+
+  // Proxy Mode
+  const [proxyEnabled, setProxyEnabled] = useState(!!endpoint?.proxyUrl);
+  const [proxyUrl, setProxyUrl] = useState(endpoint?.proxyUrl ?? "");
+
   const addVariant = () => {
     setVariants([...variants, {
       id: generateId(),
@@ -87,6 +105,11 @@ export default function EndpointForm({ endpoint, onSave, onCancel }: Props) {
       rateLimit: rateLimitEnabled ? { maxRequests, windowSeconds } : undefined,
       webhook: webhookEnabled && whUrl ? { url: whUrl, method: whMethod, delayMs: whDelay, body: whBody || undefined, headers: Object.keys(webhookHeaders).length > 0 ? webhookHeaders : undefined } : undefined,
       variants: variants.length > 0 ? variants : undefined,
+      sequence: sequenceEnabled && sequenceItems.length > 0 ? sequenceItems : undefined,
+      failureRate: failureRate > 0 ? failureRate : undefined,
+      responseBodyUrl: responseBodyUrl || undefined,
+      jsonSchema: jsonSchemaEnabled ? jsonSchema : undefined,
+      proxyUrl: proxyEnabled && proxyUrl ? proxyUrl : undefined,
     });
   };
 
@@ -275,6 +298,89 @@ export default function EndpointForm({ endpoint, onSave, onCancel }: Props) {
         )}
       </div>
 
+      {/* ─── Sequence Responses ──────────────────────────────────────── */}
+      <div className="border border-border rounded-lg overflow-hidden">
+        <button type="button" onClick={() => setSequenceEnabled(!sequenceEnabled)} className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-surface-2/50 transition-colors">
+          <span className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${sequenceEnabled ? "bg-accent" : "bg-border"}`} />
+            <span className="font-medium">Sequence Responses</span>
+          </span>
+          <span className="text-xs text-muted">{sequenceEnabled ? `${sequenceItems.length} steps` : "Off"}</span>
+        </button>
+        {sequenceEnabled && (
+          <div className="px-4 py-3 border-t border-border bg-surface-2/30 space-y-2">
+            <p className="text-xs text-muted">Each call returns the next body in sequence (cycles).</p>
+            {sequenceItems.map((item, i) => (
+              <div key={i} className="flex gap-2">
+                <span className="shrink-0 text-xs text-muted font-mono pt-2 w-6">#{i+1}</span>
+                <textarea value={item} onChange={(e) => { const n = [...sequenceItems]; n[i] = e.target.value; setSequenceItems(n); }} rows={2} className="code-editor flex-1 bg-surface-2 border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:border-accent" />
+                <button type="button" onClick={() => setSequenceItems(sequenceItems.filter((_, j) => j !== i))} className="text-xs text-danger shrink-0">x</button>
+              </div>
+            ))}
+            <button type="button" onClick={() => setSequenceItems([...sequenceItems, ""])} className="text-xs text-accent hover:text-accent-hover">+ Add step</button>
+          </div>
+        )}
+      </div>
+
+      {/* ─── Random Failure ────────────────────────────────────────────── */}
+      <div className="border border-border rounded-lg overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <span className="flex items-center gap-2 text-sm">
+            <span className={`w-2 h-2 rounded-full ${failureRate > 0 ? "bg-danger" : "bg-border"}`} />
+            <span className="font-medium">Random Failure</span>
+          </span>
+          <div className="flex items-center gap-2">
+            <input type="range" min={0} max={100} value={failureRate} onChange={(e) => setFailureRate(Number(e.target.value))} className="w-24 h-1 accent-danger" />
+            <span className="text-xs font-mono text-muted w-10 text-right">{failureRate}%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Response Body from URL ───────────────────────────────────── */}
+      <div className="border border-border rounded-lg overflow-hidden">
+        <div className="flex items-center gap-3 px-4 py-2.5">
+          <span className="flex items-center gap-2 text-sm">
+            <span className={`w-2 h-2 rounded-full ${responseBodyUrl ? "bg-accent" : "bg-border"}`} />
+            <span className="font-medium">Body from URL</span>
+          </span>
+          <input type="url" value={responseBodyUrl} onChange={(e) => setResponseBodyUrl(e.target.value)} placeholder="https://example.com/data.json" className="flex-1 bg-surface-2 border border-border rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:border-accent" />
+        </div>
+      </div>
+
+      {/* ─── JSON Schema Validation ───────────────────────────────────── */}
+      <div className="border border-border rounded-lg overflow-hidden">
+        <button type="button" onClick={() => setJsonSchemaEnabled(!jsonSchemaEnabled)} className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-surface-2/50 transition-colors">
+          <span className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${jsonSchemaEnabled ? "bg-warning" : "bg-border"}`} />
+            <span className="font-medium">Request Validation</span>
+          </span>
+          <span className="text-xs text-muted">{jsonSchemaEnabled ? "On" : "Off"}</span>
+        </button>
+        {jsonSchemaEnabled && (
+          <div className="px-4 py-3 border-t border-border bg-surface-2/30">
+            <p className="text-xs text-muted mb-2">JSON Schema — validates request body. Returns 422 on failure.</p>
+            <textarea value={jsonSchema} onChange={(e) => setJsonSchema(e.target.value)} rows={3} className="code-editor w-full bg-surface-2 border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:border-accent" />
+          </div>
+        )}
+      </div>
+
+      {/* ─── Proxy Mode ───────────────────────────────────────────────── */}
+      <div className="border border-border rounded-lg overflow-hidden">
+        <button type="button" onClick={() => setProxyEnabled(!proxyEnabled)} className="w-full flex items-center justify-between px-4 py-2.5 text-sm hover:bg-surface-2/50 transition-colors">
+          <span className="flex items-center gap-2">
+            <span className={`w-2 h-2 rounded-full ${proxyEnabled ? "bg-success" : "bg-border"}`} />
+            <span className="font-medium">Proxy Mode</span>
+          </span>
+          <span className="text-xs text-muted">{proxyEnabled ? "On" : "Off"}</span>
+        </button>
+        {proxyEnabled && (
+          <div className="px-4 py-3 border-t border-border bg-surface-2/30">
+            <p className="text-xs text-muted mb-2">Forwards requests to a real API. The mock path is appended to this base URL.</p>
+            <input type="url" value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} placeholder="https://api.example.com" className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent" />
+          </div>
+        )}
+      </div>
+
       {/* Preview */}
       <div className="bg-background border border-border rounded-lg p-4">
         <div className="text-xs text-muted mb-2">Preview</div>
@@ -287,6 +393,11 @@ export default function EndpointForm({ endpoint, onSave, onCancel }: Props) {
           {rateLimitEnabled && <span className="text-warning text-xs">limit:{maxRequests}/{windowSeconds}s</span>}
           {webhookEnabled && whUrl && <span className="text-accent text-xs">webhook</span>}
           {variants.length > 0 && <span className="text-success text-xs">{variants.length} variant{variants.length > 1 ? "s" : ""}</span>}
+          {sequenceEnabled && <span className="text-accent text-xs">seq:{sequenceItems.length}</span>}
+          {failureRate > 0 && <span className="text-danger text-xs">fail:{failureRate}%</span>}
+          {responseBodyUrl && <span className="text-muted text-xs">URL</span>}
+          {proxyEnabled && <span className="text-success text-xs">proxy</span>}
+          {jsonSchemaEnabled && <span className="text-warning text-xs">schema</span>}
         </div>
       </div>
 

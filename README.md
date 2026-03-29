@@ -49,6 +49,17 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 | **Swagger Page** | Visit a mock's base URL to see a Swagger-like listing of all its endpoints |
 | **Dark & Light Theme** | Toggle between dark and light mode |
 | **Live Demo** | Full e-commerce demo app powered by a Mocka mock API at [/demo](https://mocka.qzz.io/demo) |
+| **Sequence Responses** | Cycle through different response bodies on each call |
+| **Random Failure Injection** | Configurable % chance of returning 500 — chaos testing |
+| **Response from URL** | Fetch response body from an external URL instead of inline |
+| **JSON Schema Validation** | Validate request body against a schema, return 422 on failure |
+| **Proxy Mode** | Forward requests to a real API and return the response |
+| **OpenAPI Import** | Auto-generate endpoints from an OpenAPI/Swagger spec file |
+| **Postman Import** | Import a Postman collection to create mock endpoints |
+| **cURL to Mock** | Paste a cURL command and create an endpoint instantly |
+| **Live Playground** | "Try it" button on the Swagger page to test endpoints in-browser |
+| **Public Gallery** | Browse and clone public mock APIs at [/gallery](https://mocka.qzz.io/gallery) |
+| **Use Case Templates** | Pre-built API templates for e-commerce, auth, payments, chat, and more |
 | **Persistent Storage** | Cloudflare D1 (SQLite at the edge) — data survives deployments |
 
 ## Quick Start
@@ -410,6 +421,8 @@ src/
 │   ├── create/page.tsx                           # Mock creation form (auth required)
 │   ├── dashboard/page.tsx                        # Mock management dashboard (auth required)
 │   ├── demo/page.tsx                             # Live e-commerce demo (uses mock API)
+│   ├── gallery/page.tsx                          # Public mock API gallery
+│   ├── use-cases/page.tsx                        # SEO landing pages by use case
 │   ├── api/
 │   │   ├── mocks/route.ts                        # CRUD API for mock projects
 │   │   ├── stats/route.ts                        # Analytics API

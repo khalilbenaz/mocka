@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import EndpointForm from "@/components/EndpointForm";
 import { MockEndpoint } from "@/lib/types";
 import { generateId, generateSlug, methodColor, userIdToSlug } from "@/lib/utils";
+import { parseCurl, parseOpenAPI, parsePostman } from "@/lib/importers";
 
 export default function CreatePage() {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function CreatePage() {
   const [editingEndpoint, setEditingEndpoint] = useState<MockEndpoint | undefined>();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showCurlInput, setShowCurlInput] = useState(false);
+  const [curlInput, setCurlInput] = useState("");
 
   const addEndpoint = (endpoint: MockEndpoint) => {
     if (editingEndpoint) {
@@ -109,6 +112,52 @@ export default function CreatePage() {
     input.click();
   };
 
+  const handleImportOpenAPI = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json,.yaml,.yml";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const result = parseOpenAPI(text);
+        if (!result) { setError("Could not parse OpenAPI/Swagger file"); return; }
+        if (result.name) setName(result.name);
+        if (result.description) setDescription(result.description);
+        setEndpoints(result.endpoints.map((ep) => ({ ...ep, id: ep.id || generateId() })));
+      } catch { setError("Invalid OpenAPI file"); }
+    };
+    input.click();
+  };
+
+  const handleImportPostman = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const result = parsePostman(text);
+        if (!result) { setError("Could not parse Postman collection"); return; }
+        if (result.name) setName(result.name);
+        if (result.description) setDescription(result.description);
+        setEndpoints(result.endpoints.map((ep) => ({ ...ep, id: ep.id || generateId() })));
+      } catch { setError("Invalid Postman collection"); }
+    };
+    input.click();
+  };
+
+  const handleParseCurl = () => {
+    const result = parseCurl(curlInput);
+    if (!result) { setError("Could not parse cURL command"); return; }
+    setEndpoints([...endpoints, { id: generateId(), method: result.method || "GET", path: result.path || "/", statusCode: result.statusCode || 200, responseBody: result.responseBody || "", contentType: result.contentType || "application/json", headers: result.headers || {}, delay: result.delay || 0 }]);
+    setCurlInput("");
+    setShowCurlInput(false);
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-background">
@@ -154,13 +203,25 @@ export default function CreatePage() {
             <h1 className="text-2xl font-bold">Create Mock Server</h1>
             <p className="text-sm text-muted mt-1">Define your endpoints and get a live URL</p>
           </div>
-          <button
-            onClick={handleImport}
-            className="text-sm text-muted hover:text-foreground border border-border hover:border-muted px-3 py-1.5 rounded-lg transition-colors"
-          >
-            Import JSON
-          </button>
+          <div className="flex gap-2">
+            <button onClick={handleImport} className="text-xs text-muted hover:text-foreground border border-border px-2.5 py-1.5 rounded-lg transition-colors">JSON</button>
+            <button onClick={handleImportOpenAPI} className="text-xs text-muted hover:text-foreground border border-border px-2.5 py-1.5 rounded-lg transition-colors">OpenAPI</button>
+            <button onClick={handleImportPostman} className="text-xs text-muted hover:text-foreground border border-border px-2.5 py-1.5 rounded-lg transition-colors">Postman</button>
+            <button onClick={() => setShowCurlInput(!showCurlInput)} className="text-xs text-accent hover:text-accent-hover border border-accent/30 px-2.5 py-1.5 rounded-lg transition-colors">cURL</button>
+          </div>
         </div>
+
+        {/* cURL input */}
+        {showCurlInput && (
+          <div className="bg-surface border border-accent/30 rounded-xl p-4 mb-6">
+            <label className="block text-xs text-muted mb-1.5">Paste a cURL command to create an endpoint</label>
+            <textarea value={curlInput} onChange={(e) => setCurlInput(e.target.value)} rows={3} className="code-editor w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-accent mb-2" placeholder={'curl -X POST https://api.example.com/users \\\n  -H "Content-Type: application/json" \\\n  -d \'{"name": "Alice"}\''} />
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => { setShowCurlInput(false); setCurlInput(""); }} className="text-xs text-muted hover:text-foreground px-3 py-1.5 rounded-lg transition-colors">Cancel</button>
+              <button onClick={handleParseCurl} className="text-xs bg-accent hover:bg-accent-hover text-white px-4 py-1.5 rounded-lg font-medium transition-colors">Parse &amp; Add</button>
+            </div>
+          </div>
+        )}
 
         {/* Project info */}
         <div className="bg-surface border border-border rounded-xl p-6 mb-6">

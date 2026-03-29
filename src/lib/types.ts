@@ -53,6 +53,16 @@ export interface MockEndpoint {
   rateLimit?: RateLimitConfig;
   webhook?: WebhookConfig;
   variants?: ResponseVariant[];
+  // Sequence responses — cycles through bodies on each call
+  sequence?: string[];
+  // Random failure injection — percentage 0-100
+  failureRate?: number;
+  // Fetch response body from external URL instead of inline
+  responseBodyUrl?: string;
+  // JSON Schema for request body validation
+  jsonSchema?: string;
+  // Proxy mode — forward to real API and record response
+  proxyUrl?: string;
 }
 
 export interface MockProject {
@@ -65,4 +75,6 @@ export interface MockProject {
   endpoints: MockEndpoint[];
   createdAt: string;
   updatedAt: string;
+  isPublic?: boolean; // visible in gallery
+  tags?: string[];
 }
