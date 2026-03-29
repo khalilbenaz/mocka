@@ -1,565 +1,338 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 
-const API = "https://mocka.qzz.io/api/mock/d045k8/e-commerce-api";
+// ─── Gallery templates (same as /gallery) ────────────────────────────────────
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  price: number;
-  currency: string;
-  category: string;
-  brand: string;
-  stock: number;
-  rating: number;
-  reviewCount: number;
-  image: string;
-  tags: string[];
-}
-
-interface CartItem {
-  productId: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-interface Cart {
+interface DemoAPI {
   id: string;
-  items: CartItem[];
-  itemCount: number;
-  subtotal: number;
-  shipping: number;
-  tax: number;
-  total: number;
-  currency: string;
-  coupon: string | null;
-}
-
-interface Order {
-  id: string;
-  status: string;
-  total: number;
-  currency: string;
-  itemCount: number;
-  createdAt: string;
-}
-
-interface Category {
-  id: number;
   name: string;
-  slug: string;
   icon: string;
-  productCount: number;
+  color: string;
+  description: string;
+  baseUrl: string;
+  endpoints: { method: string; path: string; desc: string }[];
 }
 
-interface Notification {
-  id: string;
-  type: string;
-  title: string;
-  body: string;
-  read: boolean;
-  createdAt: string;
-}
+const DEMO_APIS: DemoAPI[] = [
+  {
+    id: "e-commerce",
+    name: "E-Commerce",
+    icon: "🛒",
+    color: "text-accent",
+    description: "Products, cart, orders, reviews, payments, wishlist, notifications.",
+    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/e-commerce-api",
+    endpoints: [
+      { method: "GET", path: "/products", desc: "List all products" },
+      { method: "GET", path: "/products/1", desc: "Product detail" },
+      { method: "GET", path: "/products/search/mac", desc: "Search products" },
+      { method: "GET", path: "/cart", desc: "View cart" },
+      { method: "POST", path: "/cart/items", desc: "Add to cart" },
+      { method: "POST", path: "/cart/coupon", desc: "Apply coupon" },
+      { method: "GET", path: "/orders", desc: "List orders" },
+      { method: "GET", path: "/orders/1", desc: "Order detail" },
+      { method: "POST", path: "/orders", desc: "Place order" },
+      { method: "GET", path: "/users/me", desc: "User profile" },
+      { method: "GET", path: "/payments/methods", desc: "Payment methods" },
+      { method: "POST", path: "/payments/charge", desc: "Process payment" },
+      { method: "GET", path: "/products/1/reviews", desc: "Product reviews" },
+      { method: "GET", path: "/categories", desc: "Categories" },
+      { method: "GET", path: "/wishlist", desc: "Wishlist" },
+      { method: "GET", path: "/notifications", desc: "Notifications" },
+    ],
+  },
+  {
+    id: "auth",
+    name: "Authentication",
+    icon: "🔐",
+    color: "text-success",
+    description: "Login, register, token refresh, password reset, profile.",
+    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/auth-api",
+    endpoints: [
+      { method: "POST", path: "/auth/login", desc: "Login" },
+      { method: "POST", path: "/auth/register", desc: "Register" },
+      { method: "POST", path: "/auth/refresh", desc: "Refresh token" },
+      { method: "POST", path: "/auth/forgot-password", desc: "Forgot password" },
+      { method: "GET", path: "/auth/me", desc: "Current user" },
+      { method: "PATCH", path: "/auth/me", desc: "Update profile" },
+    ],
+  },
+  {
+    id: "social",
+    name: "Social Media",
+    icon: "💬",
+    color: "text-[#3b82f6]",
+    description: "Posts, comments, likes, followers, feed, stories.",
+    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/social-api",
+    endpoints: [
+      { method: "GET", path: "/feed", desc: "News feed" },
+      { method: "POST", path: "/posts", desc: "Create post" },
+      { method: "GET", path: "/posts/1/comments", desc: "Comments" },
+      { method: "POST", path: "/posts/1/like", desc: "Like post" },
+      { method: "GET", path: "/users/1/followers", desc: "Followers" },
+      { method: "GET", path: "/stories", desc: "Stories" },
+    ],
+  },
+  {
+    id: "payment",
+    name: "Payment",
+    icon: "💳",
+    color: "text-warning",
+    description: "Charges, refunds, customers, invoices, checkout.",
+    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/payment-api",
+    endpoints: [
+      { method: "POST", path: "/charges", desc: "Create charge" },
+      { method: "POST", path: "/refunds", desc: "Refund" },
+      { method: "GET", path: "/customers/1", desc: "Customer" },
+      { method: "GET", path: "/invoices", desc: "Invoices" },
+      { method: "GET", path: "/payment-methods", desc: "Methods" },
+      { method: "POST", path: "/checkout/sessions", desc: "Checkout" },
+    ],
+  },
+  {
+    id: "blog",
+    name: "Blog / CMS",
+    icon: "📝",
+    color: "text-danger",
+    description: "Articles, categories, tags, authors.",
+    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/blog-api",
+    endpoints: [
+      { method: "GET", path: "/articles", desc: "List articles" },
+      { method: "GET", path: "/articles/hello-world", desc: "Article detail" },
+      { method: "GET", path: "/categories", desc: "Categories" },
+      { method: "GET", path: "/authors/1", desc: "Author" },
+      { method: "GET", path: "/tags", desc: "Tags" },
+      { method: "POST", path: "/articles", desc: "Create article" },
+    ],
+  },
+  {
+    id: "weather",
+    name: "Weather",
+    icon: "🌤️",
+    color: "text-[#06b6d4]",
+    description: "Current weather, forecasts, history, alerts.",
+    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/weather-api",
+    endpoints: [
+      { method: "GET", path: "/weather/current", desc: "Current" },
+      { method: "GET", path: "/weather/forecast", desc: "Forecast" },
+      { method: "GET", path: "/weather/history", desc: "History" },
+      { method: "GET", path: "/weather/alerts", desc: "Alerts" },
+      { method: "GET", path: "/weather/cities/1", desc: "City" },
+      { method: "GET", path: "/weather/search/paris", desc: "Search" },
+    ],
+  },
+  {
+    id: "chat",
+    name: "Chat",
+    icon: "💭",
+    color: "text-[#ec4899]",
+    description: "Conversations, messages, contacts, read receipts.",
+    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/chat-api",
+    endpoints: [
+      { method: "GET", path: "/conversations", desc: "Conversations" },
+      { method: "GET", path: "/conversations/1/messages", desc: "Messages" },
+      { method: "POST", path: "/messages", desc: "Send" },
+      { method: "PATCH", path: "/messages/1/read", desc: "Read" },
+      { method: "GET", path: "/contacts", desc: "Contacts" },
+      { method: "DELETE", path: "/messages/1", desc: "Delete" },
+    ],
+  },
+  {
+    id: "iot",
+    name: "IoT",
+    icon: "📡",
+    color: "text-[#8b5cf6]",
+    description: "Devices, sensors, readings, alerts, dashboard.",
+    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/iot-api",
+    endpoints: [
+      { method: "GET", path: "/devices", desc: "All devices" },
+      { method: "GET", path: "/devices/1/readings", desc: "Readings" },
+      { method: "POST", path: "/devices/1/command", desc: "Command" },
+      { method: "GET", path: "/alerts", desc: "Alerts" },
+      { method: "GET", path: "/dashboard/stats", desc: "Stats" },
+      { method: "POST", path: "/devices", desc: "Register" },
+    ],
+  },
+];
 
-interface Review {
-  id: string;
-  author: string;
-  rating: number;
-  title: string;
-  body: string;
-  verified: boolean;
-  helpful: number;
-  createdAt: string;
-}
-
-interface UserProfile {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  avatar: string;
-  stats: {
-    totalOrders: number;
-    totalSpent: number;
-    loyaltyPoints: number;
-    tier: string;
-  };
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <span className="text-warning text-xs">
-      {"★".repeat(Math.round(rating))}
-      {"☆".repeat(5 - Math.round(rating))}
-    </span>
-  );
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  delivered: "bg-success/15 text-success",
-  shipped: "bg-accent/15 text-accent",
-  processing: "bg-warning/15 text-warning",
-  pending_payment: "bg-danger/15 text-danger",
+const METHOD_BADGE: Record<string, string> = {
+  GET: "method-get", POST: "method-post", PUT: "method-put", PATCH: "method-patch", DELETE: "method-delete",
 };
 
-// ─── Main Page ───────────────────────────────────────────────────────────────
+interface ApiLog {
+  method: string;
+  path: string;
+  status: number;
+  time: number;
+  api: string;
+}
 
-type Tab = "shop" | "cart" | "orders" | "profile" | "notifications";
+interface EndpointResult {
+  status: number;
+  time: number;
+  body: string;
+}
 
 export default function DemoPage() {
-  const [tab, setTab] = useState<Tab>("shop");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [cart, setCart] = useState<Cart | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<string | null>(null);
-  const [apiLog, setApiLog] = useState<{ method: string; path: string; status: number; time: number }[]>([]);
+  const [selectedApi, setSelectedApi] = useState<DemoAPI>(DEMO_APIS[0]);
+  const [results, setResults] = useState<Record<string, EndpointResult>>({});
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const [apiLog, setApiLog] = useState<ApiLog[]>([]);
 
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
-  };
+  const callEndpoint = useCallback(async (api: DemoAPI, ep: { method: string; path: string }) => {
+    const key = `${api.id}:${ep.method}:${ep.path}`;
+    setLoadingKey(key);
 
-  const apiFetch = useCallback(async (path: string, options?: RequestInit) => {
+    const url = `${api.baseUrl}${ep.path}`;
     const start = Date.now();
-    const res = await fetch(`${API}${path}`, options);
-    const time = Date.now() - start;
-    setApiLog((prev) => [
-      { method: options?.method || "GET", path, status: res.status, time },
-      ...prev.slice(0, 19),
-    ]);
-    return res;
+    try {
+      const res = await fetch(url, { method: ep.method });
+      const time = Date.now() - start;
+      const body = await res.text();
+      let pretty = body;
+      try { pretty = JSON.stringify(JSON.parse(body), null, 2); } catch { /* keep raw */ }
+
+      setResults((prev) => ({ ...prev, [key]: { status: res.status, time, body: pretty } }));
+      setApiLog((prev) => [{ method: ep.method, path: ep.path, status: res.status, time, api: api.name }, ...prev.slice(0, 29)]);
+    } catch {
+      setResults((prev) => ({ ...prev, [key]: { status: 0, time: Date.now() - start, body: "Network error" } }));
+    }
+    setLoadingKey(null);
   }, []);
 
-  // Load initial data
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const [prodRes, catRes, cartRes] = await Promise.all([
-        apiFetch("/products"),
-        apiFetch("/categories"),
-        apiFetch("/cart"),
-      ]);
-      const prodData = await prodRes.json() as { data: Product[] };
-      setProducts(prodData.data || []);
-      const catData = await catRes.json() as { categories: Category[] };
-      setCategories(catData.categories || []);
-      setCart(await cartRes.json() as Cart);
-      setLoading(false);
+  const callAll = async (api: DemoAPI) => {
+    for (const ep of api.endpoints) {
+      await callEndpoint(api, ep);
     }
-    load();
-  }, [apiFetch]);
-
-  // Load tab-specific data
-  useEffect(() => {
-    if (tab === "orders" && orders.length === 0) {
-      apiFetch("/orders").then(async (r) => { const d = await r.json() as { data: Order[] }; setOrders(d.data || []); });
-    }
-    if (tab === "notifications" && notifications.length === 0) {
-      apiFetch("/notifications").then(async (r) => { const d = await r.json() as { notifications: Notification[] }; setNotifications(d.notifications || []); });
-    }
-    if (tab === "profile" && !profile) {
-      apiFetch("/users/me").then(async (r) => { setProfile(await r.json() as UserProfile); });
-    }
-  }, [tab, orders.length, notifications.length, profile, apiFetch]);
-
-  // Load reviews for selected product
-  useEffect(() => {
-    if (selectedProduct !== null) {
-      apiFetch(`/products/${selectedProduct}/reviews`)
-        .then(async (r) => { const d = await r.json() as { reviews: Review[] }; setReviews(d.reviews || []); });
-    }
-  }, [selectedProduct, apiFetch]);
-
-  const addToCart = async (productId: number) => {
-    await apiFetch("/cart/items", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId }),
-    });
-    const res = await apiFetch("/cart");
-    setCart(await res.json() as Cart);
-    showToast("Added to cart");
-  };
-
-  const removeFromCart = async (productId: number) => {
-    await apiFetch(`/cart/items/${productId}`, { method: "DELETE" });
-    const res = await apiFetch("/cart");
-    setCart(await res.json() as Cart);
-    showToast("Removed from cart");
-  };
-
-  const applyCoupon = async () => {
-    await apiFetch("/cart/coupon", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: "SUMMER25" }),
-    });
-    showToast("Coupon SUMMER25 applied! -25%");
-  };
-
-  const placeOrder = async () => {
-    await apiFetch("/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
-    });
-    showToast("Order placed!");
-    setTab("orders");
-    const res = await apiFetch("/orders");
-    const d = await res.json() as { data: Order[] };
-    setOrders(d.data || []);
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 border-b border-border bg-surface/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-sm">M</div>
-              <span className="font-bold text-lg tracking-tight">ShopDemo</span>
+              <span className="font-bold text-lg tracking-tight">API Explorer</span>
             </Link>
-            <span className="text-[10px] font-mono text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded-full">
-              Powered by Mocka
-            </span>
+            <span className="text-[10px] font-mono text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded-full">Powered by Mocka</span>
           </div>
-          <div className="flex items-center gap-1">
-            {(["shop", "cart", "orders", "profile", "notifications"] as Tab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => { setTab(t); setSelectedProduct(null); }}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors capitalize ${
-                  tab === t ? "bg-accent text-white" : "text-muted hover:text-foreground hover:bg-surface-2"
-                }`}
-              >
-                {t === "cart" ? `Cart${cart ? ` (${cart.itemCount})` : ""}` : t === "notifications" ? "Notifs" : t}
-              </button>
-            ))}
-            <div className="ml-2 pl-2 border-l border-border">
-              <ThemeToggle />
-            </div>
+          <div className="flex items-center gap-3">
+            <Link href="/gallery" className="text-sm text-muted hover:text-foreground transition-colors">Gallery</Link>
+            <Link href="/create" className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">Create Mock</Link>
+            <ThemeToggle />
           </div>
         </div>
       </nav>
 
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-20 right-4 z-50 bg-success text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-lg animate-[fadeIn_0.2s]">
-          {toast}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* API Selector */}
+        <div className="flex gap-2 overflow-x-auto pb-4 mb-6">
+          {DEMO_APIS.map((api) => (
+            <button
+              key={api.id}
+              onClick={() => setSelectedApi(api)}
+              className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors border ${
+                selectedApi.id === api.id
+                  ? "bg-accent text-white border-accent"
+                  : "bg-surface border-border text-muted hover:text-foreground hover:border-accent/30"
+              }`}
+            >
+              <span>{api.icon}</span>
+              <span>{api.name}</span>
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {loading ? (
-          <div className="text-center py-20 text-muted">Loading from mock API...</div>
-        ) : (
-          <>
-            {/* Shop */}
-            {tab === "shop" && !selectedProduct && (
+        <div className="grid lg:grid-cols-[1fr_400px] gap-6">
+          {/* Endpoints panel */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
               <div>
-                {/* Categories */}
-                <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-                  {categories.map((cat) => (
-                    <button key={cat.id} className="shrink-0 px-4 py-2 bg-surface border border-border rounded-lg text-sm text-muted hover:text-foreground hover:border-accent/30 transition-colors">
-                      {cat.name} <span className="text-xs text-muted">({cat.productCount})</span>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Products grid */}
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {products.map((p) => (
-                    <div key={p.id} className="bg-surface border border-border rounded-xl overflow-hidden hover:border-accent/30 transition-colors group">
-                      <div
-                        className="aspect-square bg-surface-2 flex items-center justify-center cursor-pointer overflow-hidden"
-                        onClick={() => setSelectedProduct(p.id)}
-                      >
-                        <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                      </div>
-                      <div className="p-4">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <h3 className="font-semibold text-sm cursor-pointer hover:text-accent" onClick={() => setSelectedProduct(p.id)}>
-                            {p.name}
-                          </h3>
-                          <span className="text-xs text-muted bg-surface-2 px-2 py-0.5 rounded shrink-0">{p.brand}</span>
-                        </div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Stars rating={p.rating} />
-                          <span className="text-xs text-muted">({p.reviewCount})</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-lg">{p.price.toFixed(2)} {p.currency}</span>
-                          <button
-                            onClick={() => addToCart(p.id)}
-                            className="text-xs bg-accent hover:bg-accent-hover text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
-                          >
-                            Add to Cart
-                          </button>
-                        </div>
-                        <div className="flex gap-1.5 mt-3">
-                          {p.tags.map((tag) => (
-                            <span key={tag} className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                              tag === "bestseller" ? "bg-success/15 text-success" :
-                              tag === "new" ? "bg-accent/15 text-accent" :
-                              tag === "sale" ? "bg-danger/15 text-danger" :
-                              tag === "featured" ? "bg-warning/15 text-warning" :
-                              "bg-surface-2 text-muted"
-                            }`}>
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <h2 className={`text-xl font-bold ${selectedApi.color}`}>{selectedApi.icon} {selectedApi.name} API</h2>
+                <p className="text-sm text-muted mt-1">{selectedApi.description}</p>
               </div>
-            )}
+              <button
+                onClick={() => callAll(selectedApi)}
+                className="text-xs bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 px-3 py-1.5 rounded-lg font-medium transition-colors"
+              >
+                Call All
+              </button>
+            </div>
 
-            {/* Product detail */}
-            {tab === "shop" && selectedProduct && (
-              <div>
-                <button onClick={() => setSelectedProduct(null)} className="text-sm text-muted hover:text-foreground mb-6 flex items-center gap-1">
-                  &larr; Back to shop
-                </button>
-                {products.filter((p) => p.id === selectedProduct).map((p) => (
-                  <div key={p.id} className="grid md:grid-cols-2 gap-8">
-                    <div className="bg-surface border border-border rounded-xl overflow-hidden aspect-square">
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted bg-surface-2 px-2 py-0.5 rounded">{p.brand}</span>
-                      <h1 className="text-2xl font-bold mt-2 mb-2">{p.name}</h1>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Stars rating={p.rating} />
-                        <span className="text-sm text-muted">{p.reviewCount} reviews</span>
-                      </div>
-                      <div className="text-3xl font-bold text-accent mb-6">{p.price.toFixed(2)} {p.currency}</div>
-                      <div className="flex items-center gap-3 mb-6">
-                        <span className={`text-xs font-medium px-2.5 py-1 rounded ${p.stock > 20 ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}>
-                          {p.stock > 20 ? "In stock" : `Only ${p.stock} left`}
-                        </span>
-                        <span className="text-xs text-muted">{p.category}</span>
-                      </div>
+            {/* Base URL */}
+            <div className="bg-surface-2 border border-border rounded-lg px-4 py-2.5 mb-4 flex items-center gap-2">
+              <span className="text-xs text-muted">Base URL</span>
+              <code className="text-xs font-mono text-accent">{selectedApi.baseUrl}</code>
+            </div>
+
+            {/* Endpoints */}
+            <div className="space-y-2">
+              {selectedApi.endpoints.map((ep) => {
+                const key = `${selectedApi.id}:${ep.method}:${ep.path}`;
+                const result = results[key];
+                const isLoading = loadingKey === key;
+
+                return (
+                  <div key={key} className="bg-surface border border-border rounded-xl overflow-hidden">
+                    <div className="flex items-center gap-3 px-4 py-3">
+                      <span className={`shrink-0 text-xs font-mono font-bold px-2 py-0.5 rounded ${METHOD_BADGE[ep.method]}`}>{ep.method}</span>
+                      <code className="text-sm font-mono text-foreground/90 flex-1">{ep.path}</code>
+                      <span className="text-xs text-muted hidden sm:inline">{ep.desc}</span>
                       <button
-                        onClick={() => addToCart(p.id)}
-                        className="w-full bg-accent hover:bg-accent-hover text-white py-3 rounded-xl font-semibold transition-colors mb-8"
+                        onClick={() => callEndpoint(selectedApi, ep)}
+                        disabled={isLoading}
+                        className="shrink-0 text-xs bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
                       >
-                        Add to Cart
+                        {isLoading ? "..." : "Send"}
                       </button>
-
-                      {/* Reviews */}
-                      <h3 className="font-semibold mb-4">Reviews</h3>
-                      <div className="space-y-3">
-                        {reviews.map((r) => (
-                          <div key={r.id} className="bg-surface border border-border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-sm">{r.author}</span>
-                                {r.verified && <span className="text-[10px] text-success bg-success/10 px-1.5 py-0.5 rounded">Verified</span>}
-                              </div>
-                              <Stars rating={r.rating} />
-                            </div>
-                            <h4 className="font-medium text-sm mb-1">{r.title}</h4>
-                            <p className="text-sm text-muted leading-relaxed">{r.body}</p>
-                            <div className="text-xs text-muted mt-2">{r.helpful} people found this helpful</div>
-                          </div>
-                        ))}
-                      </div>
                     </div>
+                    {result && (
+                      <div className="border-t border-border px-4 py-3 bg-background">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className={`text-xs font-bold font-mono ${result.status >= 200 && result.status < 300 ? "text-success" : result.status >= 400 ? "text-danger" : "text-warning"}`}>
+                            {result.status}
+                          </span>
+                          <span className="text-xs text-muted font-mono">{result.time}ms</span>
+                        </div>
+                        <pre className="text-xs font-mono text-foreground/80 overflow-x-auto max-h-48 overflow-y-auto leading-relaxed">{result.body}</pre>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Live API Log */}
+          <div className="lg:sticky lg:top-20 lg:self-start">
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-success pulse-dot" />
+                <span className="text-sm font-semibold">Live API Log</span>
+                <span className="text-xs text-muted ml-auto">{apiLog.length} calls</span>
+              </div>
+              <div className="divide-y divide-border max-h-[calc(100vh-200px)] overflow-y-auto">
+                {apiLog.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-xs text-muted">Click &quot;Send&quot; on any endpoint to start</div>
+                ) : apiLog.map((log, i) => (
+                  <div key={i} className="px-4 py-2 flex items-center gap-2 text-xs font-mono">
+                    <span className={`shrink-0 px-1.5 py-0.5 rounded font-bold ${METHOD_BADGE[log.method]}`}>{log.method}</span>
+                    <span className="text-foreground/70 truncate flex-1">{log.path}</span>
+                    <span className={`shrink-0 ${log.status >= 200 && log.status < 300 ? "text-success" : "text-danger"}`}>{log.status}</span>
+                    <span className="shrink-0 text-muted">{log.time}ms</span>
                   </div>
                 ))}
               </div>
-            )}
-
-            {/* Cart */}
-            {tab === "cart" && cart && (
-              <div className="max-w-2xl mx-auto">
-                <h2 className="text-xl font-bold mb-6">Your Cart</h2>
-                {cart.items.length === 0 ? (
-                  <div className="text-center py-16 text-muted">
-                    <p className="mb-4">Your cart is empty</p>
-                    <button onClick={() => setTab("shop")} className="text-accent hover:underline">Browse products</button>
-                  </div>
-                ) : (
-                  <>
-                    <div className="space-y-3 mb-6">
-                      {cart.items.map((item) => (
-                        <div key={item.productId} className="bg-surface border border-border rounded-xl p-4 flex items-center gap-4">
-                          <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover" />
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-sm truncate">{item.name}</h3>
-                            <p className="text-xs text-muted">Qty: {item.quantity}</p>
-                          </div>
-                          <span className="font-bold text-sm">{(item.price * item.quantity).toFixed(2)} EUR</span>
-                          <button onClick={() => removeFromCart(item.productId)} className="text-xs text-danger hover:text-danger/70 px-2 py-1 rounded transition-colors">
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Summary */}
-                    <div className="bg-surface border border-border rounded-xl p-5 space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted">Subtotal</span>
-                        <span>{cart.subtotal.toFixed(2)} EUR</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted">Shipping</span>
-                        <span className="text-success">{cart.shipping === 0 ? "Free" : `${cart.shipping.toFixed(2)} EUR`}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted">Tax</span>
-                        <span>{cart.tax.toFixed(2)} EUR</span>
-                      </div>
-                      <div className="border-t border-border pt-3 flex justify-between font-bold">
-                        <span>Total</span>
-                        <span className="text-accent">{cart.total.toFixed(2)} EUR</span>
-                      </div>
-                      <div className="flex gap-2 pt-2">
-                        <button onClick={applyCoupon} className="text-xs border border-border text-muted hover:text-foreground hover:border-accent/30 px-3 py-2 rounded-lg transition-colors">
-                          Apply SUMMER25
-                        </button>
-                        <button onClick={placeOrder} className="flex-1 bg-accent hover:bg-accent-hover text-white py-2.5 rounded-lg font-semibold text-sm transition-colors">
-                          Place Order
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Orders */}
-            {tab === "orders" && (
-              <div className="max-w-2xl mx-auto">
-                <h2 className="text-xl font-bold mb-6">Your Orders</h2>
-                <div className="space-y-3">
-                  {orders.map((o) => (
-                    <div key={o.id} className="bg-surface border border-border rounded-xl p-5 flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-mono text-sm font-medium">{o.id}</span>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[o.status] || "bg-surface-2 text-muted"}`}>
-                            {o.status.replace(/_/g, " ")}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted">{o.itemCount} item{o.itemCount !== 1 ? "s" : ""} &middot; {new Date(o.createdAt).toLocaleDateString()}</p>
-                      </div>
-                      <span className="font-bold">{o.total.toFixed(2)} {o.currency}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Profile */}
-            {tab === "profile" && profile && (
-              <div className="max-w-2xl mx-auto">
-                <div className="bg-surface border border-border rounded-xl p-6 mb-6">
-                  <div className="flex items-center gap-4 mb-6">
-                    <img src={profile.avatar} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
-                    <div>
-                      <h2 className="text-xl font-bold">{profile.firstName} {profile.lastName}</h2>
-                      <p className="text-sm text-muted">{profile.email}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="bg-background border border-border rounded-lg p-3 text-center">
-                      <div className="text-lg font-bold text-accent">{profile.stats.totalOrders}</div>
-                      <div className="text-xs text-muted">Orders</div>
-                    </div>
-                    <div className="bg-background border border-border rounded-lg p-3 text-center">
-                      <div className="text-lg font-bold text-success">{profile.stats.totalSpent.toFixed(0)} EUR</div>
-                      <div className="text-xs text-muted">Spent</div>
-                    </div>
-                    <div className="bg-background border border-border rounded-lg p-3 text-center">
-                      <div className="text-lg font-bold text-warning">{profile.stats.loyaltyPoints}</div>
-                      <div className="text-xs text-muted">Points</div>
-                    </div>
-                    <div className="bg-background border border-border rounded-lg p-3 text-center">
-                      <div className="text-lg font-bold text-accent capitalize">{profile.stats.tier}</div>
-                      <div className="text-xs text-muted">Tier</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Notifications */}
-            {tab === "notifications" && (
-              <div className="max-w-2xl mx-auto">
-                <h2 className="text-xl font-bold mb-6">Notifications</h2>
-                <div className="space-y-3">
-                  {notifications.map((n) => (
-                    <div key={n.id} className={`bg-surface border rounded-xl p-4 ${n.read ? "border-border" : "border-accent/30"}`}>
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-sm">{n.title}</h3>
-                          {!n.read && <span className="w-2 h-2 rounded-full bg-accent" />}
-                        </div>
-                        <span className="text-[10px] text-muted">{new Date(n.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <p className="text-sm text-muted leading-relaxed">{n.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* API Log */}
-            <div className="mt-12 border-t border-border pt-8">
-              <h3 className="text-sm font-semibold text-muted mb-3 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-success pulse-dot" />
-                Live API Log
-                <span className="text-xs font-normal text-muted ml-1">— every action calls the real Mocka mock API</span>
-              </h3>
-              <div className="bg-surface border border-border rounded-xl overflow-hidden">
-                <div className="divide-y divide-border max-h-60 overflow-y-auto">
-                  {apiLog.length === 0 ? (
-                    <div className="px-4 py-3 text-xs text-muted">No API calls yet...</div>
-                  ) : apiLog.map((log, i) => (
-                    <div key={i} className="px-4 py-2 flex items-center gap-3 text-xs font-mono">
-                      <span className={`shrink-0 px-2 py-0.5 rounded font-bold ${
-                        log.method === "GET" ? "method-get" :
-                        log.method === "POST" ? "method-post" :
-                        log.method === "PUT" ? "method-put" :
-                        log.method === "DELETE" ? "method-delete" : "method-patch"
-                      }`}>{log.method}</span>
-                      <span className="text-foreground/80 truncate">{log.path}</span>
-                      <span className="ml-auto shrink-0 text-accent">{log.status}</span>
-                      <span className="shrink-0 text-muted">{log.time}ms</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <p className="text-xs text-muted mt-3">
-                Base URL: <a href="https://mocka.qzz.io/api/mock/d045k8/e-commerce-api" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline font-mono">mocka.qzz.io/api/mock/d045k8/e-commerce-api</a>
-                {" "}&middot;{" "}
-                <Link href="/create" className="text-accent hover:underline">Create your own mock</Link>
-              </p>
             </div>
-          </>
-        )}
+            <p className="text-xs text-muted mt-3 text-center">
+              All calls go to real Mocka mock APIs &middot; <Link href="/gallery" className="text-accent hover:underline">Browse gallery</Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
