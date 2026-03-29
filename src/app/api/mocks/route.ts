@@ -13,7 +13,7 @@ export async function GET() {
   const user = await getUserFromRequest();
   if (!user) return unauthorized();
 
-  const projects = getUserProjects(user.sub);
+  const projects = await getUserProjects(user.sub);
   return NextResponse.json(projects);
 }
 
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     // Ensure unique slug within user's namespace
     let slug = body.slug;
     let counter = 1;
-    while (slugExistsForUser(uSlug, slug)) {
+    while (await slugExistsForUser(uSlug, slug)) {
       slug = `${body.slug}-${counter}`;
       counter++;
     }
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     };
 
-    saveProject(project);
+    await saveProject(project);
     return NextResponse.json(project, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Slug is required" }, { status: 400 });
     }
 
-    if (!userOwnsProject(user.sub, uSlug, body.slug)) {
+    if (!(await userOwnsProject(user.sub, uSlug, body.slug))) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
@@ -83,7 +83,7 @@ export async function PUT(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     };
 
-    saveProject(updated);
+    await saveProject(updated);
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
@@ -103,11 +103,11 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Slug is required" }, { status: 400 });
   }
 
-  if (!userOwnsProject(user.sub, uSlug, slug)) {
+  if (!(await userOwnsProject(user.sub, uSlug, slug))) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
-  const deleted = deleteProject(uSlug, slug);
+  const deleted = await deleteProject(uSlug, slug);
   if (!deleted) {
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }

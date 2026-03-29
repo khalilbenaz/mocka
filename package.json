@@ -6,11 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "db:migrate": "wrangler d1 execute mocka-db --file=schema.sql",
+    "db:migrate:local": "wrangler d1 execute mocka-db --local --file=schema.sql"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.7",
-    "@netlify/plugin-nextjs": "^5.15.9",
+    "@opennextjs/cloudflare": "^1.17.3",
     "nanoid": "^5.1.7",
     "next": "16.2.1",
     "react": "19.2.4",
@@ -18,6 +22,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -25,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.65.0"
   }
 }

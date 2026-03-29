@@ -72,11 +72,11 @@ export default function CreatePage() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as { error?: string };
         throw new Error(data.error || "Failed to create mock");
       }
 
-      const project = await res.json();
+      const project = (await res.json()) as { slug: string };
       router.push(`/dashboard?created=${project.slug}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
