@@ -1,12 +1,8 @@
-import Link from "next/link";
-import type { Metadata } from "next";
-import ThemeToggle from "@/components/ThemeToggle";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Mock API Gallery — Ready-to-use APIs | Mocka",
-  description: "Browse ready-to-use mock APIs. E-commerce, auth, payments, social media, weather and more. Use them instantly or clone to customize.",
-  keywords: ["mock API", "fake API", "API templates", "mock server", "API testing", "free mock API"],
-};
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface GalleryTemplate {
   name: string;
@@ -153,7 +149,31 @@ const METHOD_BADGE: Record<string, string> = {
   GET: "method-get", POST: "method-post", PUT: "method-put", PATCH: "method-patch", DELETE: "method-delete",
 };
 
+function buildTemplateData(tpl: GalleryTemplate) {
+  return {
+    name: tpl.name,
+    description: tpl.description,
+    endpoints: tpl.endpoints.map((ep, i) => ({
+      id: `tpl_${i}`,
+      method: ep.method,
+      path: ep.path,
+      statusCode: ep.method === "POST" ? 201 : ep.method === "DELETE" ? 204 : 200,
+      responseBody: ep.method === "DELETE" ? "" : `{"message": "${ep.desc}"}`,
+      contentType: "application/json",
+      headers: {},
+      delay: 0,
+    })),
+  };
+}
+
 export default function GalleryPage() {
+  const router = useRouter();
+
+  const handleUseTemplate = (tpl: GalleryTemplate) => {
+    const data = buildTemplateData(tpl);
+    localStorage.setItem("mocka-import-template", JSON.stringify(data));
+    router.push("/create?from=gallery");
+  };
   return (
     <div className="min-h-screen bg-background">
       <nav className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -195,12 +215,12 @@ export default function GalleryPage() {
                   </div>
                 </div>
               </div>
-              <Link
-                href="/create"
+              <button
+                onClick={() => handleUseTemplate(tpl)}
                 className="shrink-0 text-xs bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors"
               >
                 Use Template
-              </Link>
+              </button>
             </div>
 
             {/* Endpoints */}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useUser, useAuth, SignInButton } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import EndpointForm from "@/components/EndpointForm";
@@ -10,7 +10,16 @@ import { generateId, generateSlug, methodColor, userIdToSlug } from "@/lib/utils
 import { parseCurl, parseOpenAPI, parsePostman } from "@/lib/importers";
 
 export default function CreatePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background"><Navbar /><div className="text-center py-20 text-muted">Loading...</div></div>}>
+      <CreateContent />
+    </Suspense>
+  );
+}
+
+function CreateContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isLoaded, isSignedIn, user } = useUser();
   const { getToken } = useAuth();
   const [name, setName] = useState("");
@@ -22,6 +31,24 @@ export default function CreatePage() {
   const [error, setError] = useState("");
   const [showCurlInput, setShowCurlInput] = useState(false);
   const [curlInput, setCurlInput] = useState("");
+
+  // Load template from gallery
+  useEffect(() => {
+    if (searchParams.get("from") === "gallery") {
+      try {
+        const raw = localStorage.getItem("mocka-import-template");
+        if (raw) {
+          const data = JSON.parse(raw) as { name?: string; description?: string; endpoints?: MockEndpoint[] };
+          if (data.name) setName(data.name);
+          if (data.description) setDescription(data.description);
+          if (Array.isArray(data.endpoints)) {
+            setEndpoints(data.endpoints.map((ep) => ({ ...ep, id: ep.id || generateId() })));
+          }
+          localStorage.removeItem("mocka-import-template");
+        }
+      } catch { /* ignore */ }
+    }
+  }, [searchParams]);
 
   const addEndpoint = (endpoint: MockEndpoint) => {
     if (editingEndpoint) {
