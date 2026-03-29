@@ -23,7 +23,7 @@ const DEMO_APIS: DemoAPI[] = [
     icon: "🛒",
     color: "text-accent",
     description: "Products, cart, orders, reviews, payments, wishlist, notifications.",
-    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/e-commerce-api",
+    baseUrl: "/api/demo/e-commerce",
     endpoints: [
       { method: "GET", path: "/products", desc: "List all products" },
       { method: "GET", path: "/products/1", desc: "Product detail" },
@@ -49,7 +49,7 @@ const DEMO_APIS: DemoAPI[] = [
     icon: "🔐",
     color: "text-success",
     description: "Login, register, token refresh, password reset, profile.",
-    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/auth-api",
+    baseUrl: "/api/demo/auth",
     endpoints: [
       { method: "POST", path: "/auth/login", desc: "Login" },
       { method: "POST", path: "/auth/register", desc: "Register" },
@@ -65,7 +65,7 @@ const DEMO_APIS: DemoAPI[] = [
     icon: "💬",
     color: "text-[#3b82f6]",
     description: "Posts, comments, likes, followers, feed, stories.",
-    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/social-api",
+    baseUrl: "/api/demo/social",
     endpoints: [
       { method: "GET", path: "/feed", desc: "News feed" },
       { method: "POST", path: "/posts", desc: "Create post" },
@@ -81,7 +81,7 @@ const DEMO_APIS: DemoAPI[] = [
     icon: "💳",
     color: "text-warning",
     description: "Charges, refunds, customers, invoices, checkout.",
-    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/payment-api",
+    baseUrl: "/api/demo/payment",
     endpoints: [
       { method: "POST", path: "/charges", desc: "Create charge" },
       { method: "POST", path: "/refunds", desc: "Refund" },
@@ -97,7 +97,7 @@ const DEMO_APIS: DemoAPI[] = [
     icon: "📝",
     color: "text-danger",
     description: "Articles, categories, tags, authors.",
-    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/blog-api",
+    baseUrl: "/api/demo/blog",
     endpoints: [
       { method: "GET", path: "/articles", desc: "List articles" },
       { method: "GET", path: "/articles/hello-world", desc: "Article detail" },
@@ -113,7 +113,7 @@ const DEMO_APIS: DemoAPI[] = [
     icon: "🌤️",
     color: "text-[#06b6d4]",
     description: "Current weather, forecasts, history, alerts.",
-    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/weather-api",
+    baseUrl: "/api/demo/weather",
     endpoints: [
       { method: "GET", path: "/weather/current", desc: "Current" },
       { method: "GET", path: "/weather/forecast", desc: "Forecast" },
@@ -129,7 +129,7 @@ const DEMO_APIS: DemoAPI[] = [
     icon: "💭",
     color: "text-[#ec4899]",
     description: "Conversations, messages, contacts, read receipts.",
-    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/chat-api",
+    baseUrl: "/api/demo/chat",
     endpoints: [
       { method: "GET", path: "/conversations", desc: "Conversations" },
       { method: "GET", path: "/conversations/1/messages", desc: "Messages" },
@@ -145,7 +145,7 @@ const DEMO_APIS: DemoAPI[] = [
     icon: "📡",
     color: "text-[#8b5cf6]",
     description: "Devices, sensors, readings, alerts, dashboard.",
-    baseUrl: "https://mocka.qzz.io/api/mock/d045k8/iot-api",
+    baseUrl: "/api/demo/iot",
     endpoints: [
       { method: "GET", path: "/devices", desc: "All devices" },
       { method: "GET", path: "/devices/1/readings", desc: "Readings" },
