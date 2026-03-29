@@ -1,0 +1,260 @@
+{
+  "name": "E-Commerce API",
+  "description": "API complète e-commerce : produits, panier, commandes, utilisateurs, paiements et avis",
+  "endpoints": [
+    {
+      "id": "products-list",
+      "method": "GET",
+      "path": "/products",
+      "statusCode": 200,
+      "responseBody": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"MacBook Pro 16\\\"\",\n      \"slug\": \"macbook-pro-16\",\n      \"price\": 2499.99,\n      \"currency\": \"EUR\",\n      \"category\": \"laptops\",\n      \"brand\": \"Apple\",\n      \"stock\": 42,\n      \"rating\": 4.8,\n      \"reviewCount\": 234,\n      \"image\": \"https://picsum.photos/seed/macbook/400/400\",\n      \"tags\": [\"featured\", \"bestseller\"],\n      \"createdAt\": \"{{timestamp}}\"\n    },\n    {\n      \"id\": 2,\n      \"name\": \"Sony WH-1000XM5\",\n      \"slug\": \"sony-wh1000xm5\",\n      \"price\": 349.99,\n      \"currency\": \"EUR\",\n      \"category\": \"audio\",\n      \"brand\": \"Sony\",\n      \"stock\": 156,\n      \"rating\": 4.6,\n      \"reviewCount\": 892,\n      \"image\": \"https://picsum.photos/seed/sony/400/400\",\n      \"tags\": [\"bestseller\"],\n      \"createdAt\": \"{{timestamp}}\"\n    },\n    {\n      \"id\": 3,\n      \"name\": \"Samsung Galaxy S24 Ultra\",\n      \"slug\": \"samsung-galaxy-s24-ultra\",\n      \"price\": 1459.00,\n      \"currency\": \"EUR\",\n      \"category\": \"smartphones\",\n      \"brand\": \"Samsung\",\n      \"stock\": 89,\n      \"rating\": 4.7,\n      \"reviewCount\": 1203,\n      \"image\": \"https://picsum.photos/seed/samsung/400/400\",\n      \"tags\": [\"new\", \"featured\"],\n      \"createdAt\": \"{{timestamp}}\"\n    },\n    {\n      \"id\": 4,\n      \"name\": \"Dyson V15 Detect\",\n      \"slug\": \"dyson-v15-detect\",\n      \"price\": 699.99,\n      \"currency\": \"EUR\",\n      \"category\": \"home\",\n      \"brand\": \"Dyson\",\n      \"stock\": 23,\n      \"rating\": 4.5,\n      \"reviewCount\": 445,\n      \"image\": \"https://picsum.photos/seed/dyson/400/400\",\n      \"tags\": [\"premium\"],\n      \"createdAt\": \"{{timestamp}}\"\n    },\n    {\n      \"id\": 5,\n      \"name\": \"Nike Air Max 90\",\n      \"slug\": \"nike-air-max-90\",\n      \"price\": 139.99,\n      \"currency\": \"EUR\",\n      \"category\": \"shoes\",\n      \"brand\": \"Nike\",\n      \"stock\": 312,\n      \"rating\": 4.4,\n      \"reviewCount\": 2891,\n      \"image\": \"https://picsum.photos/seed/nike/400/400\",\n      \"tags\": [\"bestseller\", \"sale\"],\n      \"createdAt\": \"{{timestamp}}\"\n    }\n  ],\n  \"pagination\": {\n    \"page\": 1,\n    \"perPage\": 20,\n    \"total\": 5,\n    \"totalPages\": 1\n  }\n}",
+      "contentType": "application/json",
+      "headers": {
+        "X-Total-Count": "5",
+        "X-Request-Id": "{{randomId}}"
+      },
+      "delay": 0
+    },
+    {
+      "id": "product-detail",
+      "method": "GET",
+      "path": "/products/:id",
+      "statusCode": 200,
+      "responseBody": "{\n  \"id\": {{id}},\n  \"name\": \"MacBook Pro 16\\\"\",\n  \"slug\": \"macbook-pro-16\",\n  \"price\": 2499.99,\n  \"compareAtPrice\": 2799.99,\n  \"currency\": \"EUR\",\n  \"category\": \"laptops\",\n  \"brand\": \"Apple\",\n  \"sku\": \"APL-MBP16-M3-{{randomId}}\",\n  \"stock\": 42,\n  \"rating\": 4.8,\n  \"reviewCount\": 234,\n  \"description\": \"Le MacBook Pro 16 pouces avec puce M3 Max offre des performances exceptionnelles pour les professionnels créatifs.\",\n  \"specs\": {\n    \"processor\": \"Apple M3 Max\",\n    \"ram\": \"36 Go\",\n    \"storage\": \"1 To SSD\",\n    \"display\": \"16.2 pouces Liquid Retina XDR\",\n    \"battery\": \"22h autonomie\",\n    \"weight\": \"2.14 kg\"\n  },\n  \"images\": [\n    \"https://picsum.photos/seed/mbp1/800/600\",\n    \"https://picsum.photos/seed/mbp2/800/600\",\n    \"https://picsum.photos/seed/mbp3/800/600\"\n  ],\n  \"tags\": [\"featured\", \"bestseller\"],\n  \"relatedProducts\": [2, 3, 5],\n  \"createdAt\": \"{{timestamp}}\",\n  \"updatedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {
+        "Cache-Control": "public, max-age=300",
+        "X-Request-Id": "{{randomId}}"
+      },
+      "delay": 50
+    },
+    {
+      "id": "products-search",
+      "method": "GET",
+      "path": "/products/search/:query",
+      "statusCode": 200,
+      "responseBody": "{\n  \"query\": \"{{query}}\",\n  \"results\": [\n    {\n      \"id\": 1,\n      \"name\": \"MacBook Pro 16\\\"\",\n      \"price\": 2499.99,\n      \"category\": \"laptops\",\n      \"rating\": 4.8,\n      \"image\": \"https://picsum.photos/seed/macbook/400/400\",\n      \"matchScore\": 0.95\n    },\n    {\n      \"id\": 3,\n      \"name\": \"Samsung Galaxy S24 Ultra\",\n      \"price\": 1459.00,\n      \"category\": \"smartphones\",\n      \"rating\": 4.7,\n      \"image\": \"https://picsum.photos/seed/samsung/400/400\",\n      \"matchScore\": 0.72\n    }\n  ],\n  \"totalResults\": 2,\n  \"searchTime\": \"{{randomInt}}ms\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 120
+    },
+    {
+      "id": "create-product",
+      "method": "POST",
+      "path": "/products",
+      "statusCode": 201,
+      "responseBody": "{\n  \"id\": {{randomInt}},\n  \"message\": \"Product created successfully\",\n  \"createdAt\": \"{{timestamp}}\",\n  \"_links\": {\n    \"self\": \"/products/{{randomInt}}\",\n    \"collection\": \"/products\"\n  }\n}",
+      "contentType": "application/json",
+      "headers": {
+        "Location": "/products/new"
+      },
+      "delay": 0
+    },
+    {
+      "id": "update-product",
+      "method": "PUT",
+      "path": "/products/:id",
+      "statusCode": 200,
+      "responseBody": "{\n  \"id\": {{id}},\n  \"message\": \"Product updated successfully\",\n  \"updatedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "delete-product",
+      "method": "DELETE",
+      "path": "/products/:id",
+      "statusCode": 204,
+      "responseBody": "",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "cart-get",
+      "method": "GET",
+      "path": "/cart",
+      "statusCode": 200,
+      "responseBody": "{\n  \"id\": \"cart_{{randomId}}\",\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"name\": \"MacBook Pro 16\\\"\",\n      \"price\": 2499.99,\n      \"quantity\": 1,\n      \"image\": \"https://picsum.photos/seed/macbook/100/100\"\n    },\n    {\n      \"productId\": 5,\n      \"name\": \"Nike Air Max 90\",\n      \"price\": 139.99,\n      \"quantity\": 2,\n      \"image\": \"https://picsum.photos/seed/nike/100/100\"\n    }\n  ],\n  \"itemCount\": 3,\n  \"subtotal\": 2779.97,\n  \"shipping\": 0.00,\n  \"tax\": 555.99,\n  \"total\": 3335.96,\n  \"currency\": \"EUR\",\n  \"coupon\": null,\n  \"updatedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {
+        "X-Cart-Count": "3"
+      },
+      "delay": 0
+    },
+    {
+      "id": "cart-add",
+      "method": "POST",
+      "path": "/cart/items",
+      "statusCode": 201,
+      "responseBody": "{\n  \"message\": \"Item added to cart\",\n  \"cartId\": \"cart_{{randomId}}\",\n  \"itemCount\": 4,\n  \"total\": 3685.95,\n  \"currency\": \"EUR\",\n  \"addedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "cart-remove",
+      "method": "DELETE",
+      "path": "/cart/items/:productId",
+      "statusCode": 200,
+      "responseBody": "{\n  \"message\": \"Item removed from cart\",\n  \"removedProductId\": {{productId}},\n  \"itemCount\": 2,\n  \"total\": 2779.97,\n  \"currency\": \"EUR\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "cart-apply-coupon",
+      "method": "POST",
+      "path": "/cart/coupon",
+      "statusCode": 200,
+      "responseBody": "{\n  \"coupon\": {\n    \"code\": \"SUMMER25\",\n    \"type\": \"percentage\",\n    \"value\": 25,\n    \"description\": \"25% de reduction - Soldes d'ete\"\n  },\n  \"discount\": -694.99,\n  \"newTotal\": 2501.97,\n  \"currency\": \"EUR\",\n  \"appliedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 200
+    },
+    {
+      "id": "orders-list",
+      "method": "GET",
+      "path": "/orders",
+      "statusCode": 200,
+      "responseBody": "{\n  \"data\": [\n    {\n      \"id\": \"ORD-2024-{{randomId}}\",\n      \"status\": \"delivered\",\n      \"total\": 2499.99,\n      \"currency\": \"EUR\",\n      \"itemCount\": 1,\n      \"createdAt\": \"2024-12-15T10:30:00Z\",\n      \"deliveredAt\": \"2024-12-18T14:22:00Z\",\n      \"trackingNumber\": \"FR{{randomInt}}{{randomInt}}\"\n    },\n    {\n      \"id\": \"ORD-2025-{{randomId}}\",\n      \"status\": \"shipped\",\n      \"total\": 349.99,\n      \"currency\": \"EUR\",\n      \"itemCount\": 1,\n      \"createdAt\": \"2025-03-20T16:45:00Z\",\n      \"shippedAt\": \"2025-03-21T09:00:00Z\",\n      \"trackingNumber\": \"FR{{randomInt}}{{randomInt}}\",\n      \"estimatedDelivery\": \"2025-03-24T18:00:00Z\"\n    },\n    {\n      \"id\": \"ORD-2025-{{randomId}}\",\n      \"status\": \"processing\",\n      \"total\": 1598.99,\n      \"currency\": \"EUR\",\n      \"itemCount\": 3,\n      \"createdAt\": \"{{timestamp}}\",\n      \"estimatedShipping\": \"2025-03-30T12:00:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"page\": 1,\n    \"perPage\": 10,\n    \"total\": 3\n  }\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "order-detail",
+      "method": "GET",
+      "path": "/orders/:id",
+      "statusCode": 200,
+      "responseBody": "{\n  \"id\": \"ORD-{{id}}\",\n  \"status\": \"shipped\",\n  \"items\": [\n    {\n      \"productId\": 2,\n      \"name\": \"Sony WH-1000XM5\",\n      \"price\": 349.99,\n      \"quantity\": 1,\n      \"image\": \"https://picsum.photos/seed/sony/100/100\"\n    }\n  ],\n  \"subtotal\": 349.99,\n  \"shipping\": 0.00,\n  \"tax\": 70.00,\n  \"total\": 419.99,\n  \"currency\": \"EUR\",\n  \"shippingAddress\": {\n    \"name\": \"Jean Dupont\",\n    \"street\": \"42 rue de la Paix\",\n    \"city\": \"Paris\",\n    \"postalCode\": \"75002\",\n    \"country\": \"FR\"\n  },\n  \"billingAddress\": {\n    \"name\": \"Jean Dupont\",\n    \"street\": \"42 rue de la Paix\",\n    \"city\": \"Paris\",\n    \"postalCode\": \"75002\",\n    \"country\": \"FR\"\n  },\n  \"payment\": {\n    \"method\": \"card\",\n    \"last4\": \"4242\",\n    \"brand\": \"Visa\"\n  },\n  \"tracking\": {\n    \"carrier\": \"Colissimo\",\n    \"number\": \"FR{{randomInt}}{{randomInt}}\",\n    \"url\": \"https://www.laposte.fr/outils/suivre-vos-envois\",\n    \"events\": [\n      { \"status\": \"delivered\", \"location\": \"Paris 02\", \"date\": \"2025-03-24T14:22:00Z\" },\n      { \"status\": \"out_for_delivery\", \"location\": \"Paris\", \"date\": \"2025-03-24T08:00:00Z\" },\n      { \"status\": \"in_transit\", \"location\": \"Hub Roissy\", \"date\": \"2025-03-23T03:15:00Z\" },\n      { \"status\": \"shipped\", \"location\": \"Entrepot Lyon\", \"date\": \"2025-03-22T10:30:00Z\" }\n    ]\n  },\n  \"createdAt\": \"2025-03-20T16:45:00Z\",\n  \"updatedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 80
+    },
+    {
+      "id": "create-order",
+      "method": "POST",
+      "path": "/orders",
+      "statusCode": 201,
+      "responseBody": "{\n  \"id\": \"ORD-2025-{{randomId}}\",\n  \"status\": \"pending_payment\",\n  \"total\": 3335.96,\n  \"currency\": \"EUR\",\n  \"paymentUrl\": \"https://checkout.stripe.com/pay/cs_test_{{randomId}}\",\n  \"expiresAt\": \"{{timestamp}}\",\n  \"createdAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {
+        "Location": "/orders/new"
+      },
+      "delay": 300
+    },
+    {
+      "id": "user-profile",
+      "method": "GET",
+      "path": "/users/me",
+      "statusCode": 200,
+      "responseBody": "{\n  \"id\": \"usr_{{randomId}}\",\n  \"email\": \"jean.dupont@example.com\",\n  \"firstName\": \"Jean\",\n  \"lastName\": \"Dupont\",\n  \"avatar\": \"https://picsum.photos/seed/avatar/200/200\",\n  \"phone\": \"+33 6 12 34 56 78\",\n  \"locale\": \"fr-FR\",\n  \"addresses\": [\n    {\n      \"id\": \"addr_1\",\n      \"label\": \"Domicile\",\n      \"street\": \"42 rue de la Paix\",\n      \"city\": \"Paris\",\n      \"postalCode\": \"75002\",\n      \"country\": \"FR\",\n      \"isDefault\": true\n    },\n    {\n      \"id\": \"addr_2\",\n      \"label\": \"Bureau\",\n      \"street\": \"15 avenue des Champs-Elysees\",\n      \"city\": \"Paris\",\n      \"postalCode\": \"75008\",\n      \"country\": \"FR\",\n      \"isDefault\": false\n    }\n  ],\n  \"preferences\": {\n    \"newsletter\": true,\n    \"notifications\": { \"email\": true, \"push\": true, \"sms\": false },\n    \"currency\": \"EUR\",\n    \"language\": \"fr\"\n  },\n  \"stats\": {\n    \"totalOrders\": 12,\n    \"totalSpent\": 8934.50,\n    \"memberSince\": \"2023-06-15T00:00:00Z\",\n    \"loyaltyPoints\": 2450,\n    \"tier\": \"gold\"\n  },\n  \"createdAt\": \"2023-06-15T10:00:00Z\",\n  \"updatedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "update-profile",
+      "method": "PATCH",
+      "path": "/users/me",
+      "statusCode": 200,
+      "responseBody": "{\n  \"message\": \"Profile updated successfully\",\n  \"updatedFields\": [\"firstName\", \"lastName\", \"phone\"],\n  \"updatedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "payment-methods",
+      "method": "GET",
+      "path": "/payments/methods",
+      "statusCode": 200,
+      "responseBody": "{\n  \"methods\": [\n    {\n      \"id\": \"pm_{{randomId}}\",\n      \"type\": \"card\",\n      \"brand\": \"Visa\",\n      \"last4\": \"4242\",\n      \"expMonth\": 12,\n      \"expYear\": 2027,\n      \"isDefault\": true\n    },\n    {\n      \"id\": \"pm_{{randomId}}\",\n      \"type\": \"card\",\n      \"brand\": \"Mastercard\",\n      \"last4\": \"8888\",\n      \"expMonth\": 6,\n      \"expYear\": 2026,\n      \"isDefault\": false\n    },\n    {\n      \"id\": \"pm_{{randomId}}\",\n      \"type\": \"paypal\",\n      \"email\": \"jean.dupont@example.com\",\n      \"isDefault\": false\n    }\n  ]\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "process-payment",
+      "method": "POST",
+      "path": "/payments/charge",
+      "statusCode": 200,
+      "responseBody": "{\n  \"id\": \"txn_{{randomId}}\",\n  \"status\": \"succeeded\",\n  \"amount\": 3335.96,\n  \"currency\": \"EUR\",\n  \"method\": {\n    \"type\": \"card\",\n    \"brand\": \"Visa\",\n    \"last4\": \"4242\"\n  },\n  \"receipt\": {\n    \"number\": \"REC-{{randomInt}}\",\n    \"url\": \"https://receipts.example.com/{{randomId}}\"\n  },\n  \"processedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 800
+    },
+    {
+      "id": "reviews-list",
+      "method": "GET",
+      "path": "/products/:productId/reviews",
+      "statusCode": 200,
+      "responseBody": "{\n  \"productId\": {{productId}},\n  \"averageRating\": 4.6,\n  \"totalReviews\": 3,\n  \"ratingDistribution\": { \"5\": 2, \"4\": 0, \"3\": 1, \"2\": 0, \"1\": 0 },\n  \"reviews\": [\n    {\n      \"id\": \"rev_1\",\n      \"author\": \"Marie L.\",\n      \"avatar\": \"https://picsum.photos/seed/marie/50/50\",\n      \"rating\": 5,\n      \"title\": \"Excellent produit !\",\n      \"body\": \"Qualite exceptionnelle, je recommande vivement. Livraison rapide et emballage soigne.\",\n      \"verified\": true,\n      \"helpful\": 24,\n      \"createdAt\": \"2025-02-10T14:30:00Z\"\n    },\n    {\n      \"id\": \"rev_2\",\n      \"author\": \"Pierre M.\",\n      \"avatar\": \"https://picsum.photos/seed/pierre/50/50\",\n      \"rating\": 5,\n      \"title\": \"Parfait pour le travail\",\n      \"body\": \"Utilise quotidiennement depuis 2 mois, aucun probleme. Performances au top.\",\n      \"verified\": true,\n      \"helpful\": 18,\n      \"createdAt\": \"2025-01-22T09:15:00Z\"\n    },\n    {\n      \"id\": \"rev_3\",\n      \"author\": \"Sophie R.\",\n      \"avatar\": \"https://picsum.photos/seed/sophie/50/50\",\n      \"rating\": 3,\n      \"title\": \"Correct mais cher\",\n      \"body\": \"Le produit est bien mais le rapport qualite/prix pourrait etre meilleur.\",\n      \"verified\": false,\n      \"helpful\": 7,\n      \"createdAt\": \"2024-12-05T18:45:00Z\"\n    }\n  ]\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "create-review",
+      "method": "POST",
+      "path": "/products/:productId/reviews",
+      "statusCode": 201,
+      "responseBody": "{\n  \"id\": \"rev_{{randomId}}\",\n  \"productId\": {{productId}},\n  \"message\": \"Review submitted successfully. It will be visible after moderation.\",\n  \"status\": \"pending_moderation\",\n  \"createdAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "categories",
+      "method": "GET",
+      "path": "/categories",
+      "statusCode": 200,
+      "responseBody": "{\n  \"categories\": [\n    { \"id\": 1, \"name\": \"Laptops\", \"slug\": \"laptops\", \"icon\": \"laptop\", \"productCount\": 45 },\n    { \"id\": 2, \"name\": \"Smartphones\", \"slug\": \"smartphones\", \"icon\": \"smartphone\", \"productCount\": 78 },\n    { \"id\": 3, \"name\": \"Audio\", \"slug\": \"audio\", \"icon\": \"headphones\", \"productCount\": 132 },\n    { \"id\": 4, \"name\": \"Maison\", \"slug\": \"home\", \"icon\": \"home\", \"productCount\": 56 },\n    { \"id\": 5, \"name\": \"Chaussures\", \"slug\": \"shoes\", \"icon\": \"shoe\", \"productCount\": 234 },\n    { \"id\": 6, \"name\": \"Gaming\", \"slug\": \"gaming\", \"icon\": \"gamepad\", \"productCount\": 89 }\n  ]\n}",
+      "contentType": "application/json",
+      "headers": {
+        "Cache-Control": "public, max-age=3600"
+      },
+      "delay": 0
+    },
+    {
+      "id": "wishlist",
+      "method": "GET",
+      "path": "/wishlist",
+      "statusCode": 200,
+      "responseBody": "{\n  \"items\": [\n    {\n      \"productId\": 3,\n      \"name\": \"Samsung Galaxy S24 Ultra\",\n      \"price\": 1459.00,\n      \"image\": \"https://picsum.photos/seed/samsung/200/200\",\n      \"inStock\": true,\n      \"addedAt\": \"2025-03-15T12:00:00Z\"\n    },\n    {\n      \"productId\": 4,\n      \"name\": \"Dyson V15 Detect\",\n      \"price\": 699.99,\n      \"image\": \"https://picsum.photos/seed/dyson/200/200\",\n      \"inStock\": true,\n      \"addedAt\": \"2025-03-10T08:30:00Z\"\n    }\n  ],\n  \"totalItems\": 2\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "wishlist-add",
+      "method": "POST",
+      "path": "/wishlist/:productId",
+      "statusCode": 201,
+      "responseBody": "{\n  \"message\": \"Added to wishlist\",\n  \"productId\": {{productId}},\n  \"totalItems\": 3,\n  \"addedAt\": \"{{timestamp}}\"\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "wishlist-remove",
+      "method": "DELETE",
+      "path": "/wishlist/:productId",
+      "statusCode": 200,
+      "responseBody": "{\n  \"message\": \"Removed from wishlist\",\n  \"productId\": {{productId}},\n  \"totalItems\": 1\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    },
+    {
+      "id": "notifications",
+      "method": "GET",
+      "path": "/notifications",
+      "statusCode": 200,
+      "responseBody": "{\n  \"unreadCount\": 3,\n  \"notifications\": [\n    {\n      \"id\": \"notif_1\",\n      \"type\": \"order_shipped\",\n      \"title\": \"Commande expediee\",\n      \"body\": \"Votre commande ORD-2025-ABC a ete expediee. Livraison estimee le 24 mars.\",\n      \"read\": false,\n      \"createdAt\": \"2025-03-21T09:00:00Z\"\n    },\n    {\n      \"id\": \"notif_2\",\n      \"type\": \"price_drop\",\n      \"title\": \"Baisse de prix !\",\n      \"body\": \"Le Samsung Galaxy S24 Ultra de votre wishlist est passe de 1459EUR a 1299EUR.\",\n      \"read\": false,\n      \"productId\": 3,\n      \"createdAt\": \"2025-03-20T15:30:00Z\"\n    },\n    {\n      \"id\": \"notif_3\",\n      \"type\": \"loyalty\",\n      \"title\": \"Nouveau palier fidelite\",\n      \"body\": \"Felicitations ! Vous avez atteint le palier Gold avec 2450 points.\",\n      \"read\": false,\n      \"createdAt\": \"2025-03-18T12:00:00Z\"\n    },\n    {\n      \"id\": \"notif_4\",\n      \"type\": \"review_approved\",\n      \"title\": \"Avis publie\",\n      \"body\": \"Votre avis sur le MacBook Pro 16 a ete approuve et publie.\",\n      \"read\": true,\n      \"createdAt\": \"2025-03-15T10:00:00Z\"\n    }\n  ]\n}",
+      "contentType": "application/json",
+      "headers": {},
+      "delay": 0
+    }
+  ]
+}
