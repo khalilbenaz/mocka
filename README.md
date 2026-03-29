@@ -38,6 +38,9 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 | **Any Response** | JSON, XML, HTML, plain text with any status code |
 | **Custom Headers** | Add any response headers you need |
 | **Simulated Latency** | Add delays (ms) to mimic real-world network conditions |
+| **Rate Limiting** | Optional per-endpoint rate limit (max requests / window) with 429 response |
+| **Webhooks / Callbacks** | Trigger an HTTP callback after responding — configurable URL, method, delay, body |
+| **Conditional Responses** | Return different responses based on query params, headers, or body fields |
 | **Path Parameters** | Support for `:param` style dynamic segments (e.g. `/users/:id`) |
 | **Response Templating** | Dynamic values: `{{id}}`, `{{timestamp}}`, `{{randomId}}`, `{{randomInt}}` |
 | **CORS Ready** | All endpoints include CORS headers by default |

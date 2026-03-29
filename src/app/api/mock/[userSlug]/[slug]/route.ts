@@ -31,6 +31,9 @@ function renderEndpoint(ep: MockEndpoint, baseUrl: string): string {
         <span style="margin-left:auto;font-family:monospace;font-size:12px;color:#737373">${ep.statusCode}</span>
         <span style="font-size:12px;color:#737373">${escapeHtml(ep.contentType)}</span>
         ${ep.delay > 0 ? `<span style="font-size:12px;color:#f59e0b;font-family:monospace">${ep.delay}ms</span>` : ""}
+        ${ep.rateLimit ? `<span style="font-size:10px;color:#f59e0b;background:#f59e0b15;border:1px solid #f59e0b30;padding:2px 6px;border-radius:4px">${ep.rateLimit.maxRequests}/${ep.rateLimit.windowSeconds}s</span>` : ""}
+        ${ep.webhook ? `<span style="font-size:10px;color:#6366f1;background:#6366f115;border:1px solid #6366f130;padding:2px 6px;border-radius:4px">webhook</span>` : ""}
+        ${ep.variants && ep.variants.length > 0 ? `<span style="font-size:10px;color:#22c55e;background:#22c55e15;border:1px solid #22c55e30;padding:2px 6px;border-radius:4px">${ep.variants.length} variant${ep.variants.length > 1 ? "s" : ""}</span>` : ""}
       </div>
       <div class="ep-body hidden" style="border-top:1px solid #2a2a2a;padding:16px 18px;background:#0d0d0d">
         <div style="margin-bottom:12px">
@@ -43,9 +46,30 @@ function renderEndpoint(ep: MockEndpoint, baseUrl: string): string {
           <pre style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:6px;padding:10px 14px;font-size:12px;color:#ededed;overflow-x:auto;margin:0">${escapeHtml(JSON.stringify(ep.headers, null, 2))}</pre>
         </div>` : ""}
         ${ep.responseBody ? `
-        <div>
+        <div style="margin-bottom:12px">
           <div style="font-size:11px;color:#737373;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Response body</div>
           <pre style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:6px;padding:10px 14px;font-size:12px;color:#ededed;overflow-x:auto;margin:0;max-height:300px">${escapeHtml(ep.responseBody)}</pre>
+        </div>` : ""}
+        ${ep.rateLimit ? `
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;color:#f59e0b;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Rate Limit</div>
+          <div style="font-size:12px;color:#ededed">${ep.rateLimit.maxRequests} requests per ${ep.rateLimit.windowSeconds} seconds. Returns <code style="color:#ef4444">429</code> when exceeded.</div>
+        </div>` : ""}
+        ${ep.webhook ? `
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;color:#6366f1;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px">Webhook</div>
+          <div style="font-size:12px;color:#ededed">After responding, fires <code style="color:#a5b4fc">${ep.webhook.method} ${escapeHtml(ep.webhook.url)}</code>${ep.webhook.delayMs > 0 ? ` after ${ep.webhook.delayMs}ms` : ""}</div>
+        </div>` : ""}
+        ${ep.variants && ep.variants.length > 0 ? `
+        <div>
+          <div style="font-size:11px;color:#22c55e;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Conditional Responses (${ep.variants.length})</div>
+          ${ep.variants.map((v) => `
+            <div style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:6px;padding:10px 14px;margin-bottom:6px">
+              <div style="font-size:12px;font-weight:600;color:#ededed;margin-bottom:4px">${escapeHtml(v.label)}</div>
+              <div style="font-size:11px;color:#737373;margin-bottom:6px">When <code style="color:#a5b4fc">${v.condition.source}.${escapeHtml(v.condition.field)}</code> ${v.condition.operator} ${v.condition.value ? `<code style="color:#a5b4fc">${escapeHtml(v.condition.value)}</code>` : ""} &rarr; <code style="color:#ef4444">${v.statusCode}</code></div>
+              ${v.responseBody ? `<pre style="font-size:11px;color:#ededed80;overflow-x:auto;margin:0;max-height:80px">${escapeHtml(v.responseBody)}</pre>` : ""}
+            </div>
+          `).join("")}
         </div>` : ""}
       </div>
     </div>`;

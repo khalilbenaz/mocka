@@ -125,6 +125,24 @@ export async function userOwnsProject(userId: string, userSlug: string, slug: st
   return row !== null;
 }
 
+// Count recent requests for rate limiting
+export async function countRecentRequests(
+  userSlug: string,
+  projectSlug: string,
+  method: string,
+  path: string,
+  windowSeconds: number
+): Promise<number> {
+  const db = await getDB();
+  const row = await db
+    .prepare(
+      "SELECT COUNT(*) as cnt FROM request_logs WHERE user_slug = ? AND project_slug = ? AND method = ? AND path = ? AND created_at > datetime('now', '-' || ? || ' seconds')"
+    )
+    .bind(userSlug, projectSlug, method, path, windowSeconds)
+    .first<{ cnt: number }>();
+  return row?.cnt ?? 0;
+}
+
 // Log a mock request for analytics
 export async function logRequest(
   userSlug: string,
