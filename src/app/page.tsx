@@ -154,68 +154,55 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center mb-4">Documentation</h2>
           <p className="text-muted text-center mb-16 max-w-2xl mx-auto">Everything you need to use Mocka from the UI or programmatically via API.</p>
 
-          {/* API Auth */}
+          {/* How it works */}
           <div className="mb-16">
             <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
               <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">1</span>
-              Authentication
+              How It Works
             </h3>
             <div className="bg-surface border border-border rounded-xl p-6 space-y-4">
-              <p className="text-muted text-sm leading-relaxed">
-                Management endpoints (<code className="bg-surface-2 px-1.5 py-0.5 rounded text-accent text-xs">/api/mocks</code>, <code className="bg-surface-2 px-1.5 py-0.5 rounded text-accent text-xs">/api/stats</code>) require authentication.
-                Mock serving endpoints are <strong className="text-foreground">public</strong>.
-              </p>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-background border border-border rounded-lg p-4">
-                  <div className="text-xs text-muted uppercase tracking-wide mb-2 font-semibold">Browser (automatic)</div>
-                  <p className="text-sm text-muted">Clerk handles authentication via session cookies. No headers needed.</p>
+                  <div className="text-xs text-success uppercase tracking-wide mb-2 font-semibold">Creating &amp; managing mocks</div>
+                  <p className="text-sm text-muted leading-relaxed">
+                    Sign in, go to <Link href="/create" className="text-accent hover:underline">/create</Link>, define your endpoints, and click Create.
+                    Manage everything from the <Link href="/dashboard" className="text-accent hover:underline">dashboard</Link>. Authentication is handled automatically.
+                  </p>
                 </div>
                 <div className="bg-background border border-border rounded-lg p-4">
-                  <div className="text-xs text-muted uppercase tracking-wide mb-2 font-semibold">Programmatic (Bearer)</div>
-                  <pre className="text-xs font-mono text-accent overflow-x-auto">Authorization: Bearer YOUR_CLERK_JWT</pre>
+                  <div className="text-xs text-accent uppercase tracking-wide mb-2 font-semibold">Using your mocks (public)</div>
+                  <p className="text-sm text-muted leading-relaxed">
+                    Your mock endpoints are publicly accessible — no auth, no API key.
+                    Just call the URL from your frontend, Postman, curl, or anywhere.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* CRUD */}
+          {/* Manage */}
           <div className="mb-16">
             <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
               <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">2</span>
-              Manage Projects (CRUD)
+              Create &amp; Manage Mocks
             </h3>
-            <div className="space-y-3">
-              {[
-                { method: "POST", path: "/api/mocks", desc: "Create a new mock project", badge: "method-post" },
-                { method: "GET", path: "/api/mocks", desc: "List all your projects", badge: "method-get" },
-                { method: "PUT", path: "/api/mocks", desc: "Update an existing project", badge: "method-put" },
-                { method: "DELETE", path: "/api/mocks?slug=xxx", desc: "Delete a project and its logs", badge: "method-delete" },
-              ].map((ep) => (
-                <div key={ep.method + ep.path} className="bg-surface border border-border rounded-lg px-5 py-3 flex items-center gap-4">
-                  <span className={`shrink-0 text-xs font-mono font-bold px-2.5 py-1 rounded ${ep.badge}`}>{ep.method}</span>
-                  <code className="text-sm font-mono text-foreground/90">{ep.path}</code>
-                  <span className="ml-auto text-sm text-muted hidden sm:inline">{ep.desc}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 bg-surface border border-border rounded-xl overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-surface-2/50">
-                <span className="text-xs text-muted font-mono">Example: Create a project</span>
+            <div className="bg-surface border border-border rounded-xl p-6 space-y-4">
+              <div className="space-y-3">
+                {[
+                  { step: "1", text: <>Go to <Link href="/create" className="text-accent hover:underline font-medium">/create</Link> and sign in with GitHub or email</> },
+                  { step: "2", text: "Name your project, set a slug, and add your endpoints" },
+                  { step: "3", text: <>Click <strong className="text-foreground">Create Mock Server</strong> — your API is live instantly</> },
+                  { step: "4", text: <>Edit, delete, export or add endpoints from the <Link href="/dashboard" className="text-accent hover:underline font-medium">dashboard</Link></> },
+                ].map((s) => (
+                  <div key={s.step} className="flex items-start gap-3">
+                    <span className="w-6 h-6 shrink-0 rounded-full bg-accent/10 text-accent flex items-center justify-center text-xs font-bold font-mono">{s.step}</span>
+                    <p className="text-sm text-muted leading-relaxed">{s.text}</p>
+                  </div>
+                ))}
               </div>
-              <pre className="p-4 text-xs font-mono text-foreground/80 overflow-x-auto leading-relaxed">{`curl -X POST https://mocka.qzz.io/api/mocks \\
-  -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer YOUR_TOKEN" \\
-  -d '{
-    "id": "1", "name": "My API", "slug": "my-api",
-    "description": "User management mock",
-    "endpoints": [{
-      "id": "e1", "method": "GET", "path": "/users",
-      "statusCode": 200,
-      "responseBody": "[{\\"id\\": 1, \\"name\\": \\"Alice\\"}]",
-      "contentType": "application/json",
-      "headers": {}, "delay": 0
-    }]
-  }'`}</pre>
+              <p className="text-xs text-muted pt-2 border-t border-border">
+                You can also import a <code className="bg-surface-2 px-1 py-0.5 rounded text-accent">.json</code> config file on the create page to set up a project in one click.
+              </p>
             </div>
           </div>
 
@@ -373,17 +360,28 @@ curl -X DELETE https://mocka.qzz.io/api/mock/2mojs3/my-api/users/42`}</pre>
 
       {/* Footer */}
       <footer className="border-t border-border py-8">
-        <div className="max-w-6xl mx-auto px-4 flex items-center justify-between text-sm text-muted">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-white font-bold text-xs">M</div>
-            <span>Mocka</span>
+        <div className="max-w-6xl mx-auto px-4 space-y-4">
+          <div className="flex items-center justify-between text-sm text-muted">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-white font-bold text-xs">M</div>
+              <span>Mocka</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <a href="https://github.com/khalilbenaz/mocka" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                GitHub
+              </a>
+              <span className="font-mono text-accent">qzz.io</span>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <a href="https://github.com/khalilbenaz/mocka" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1.5">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-              GitHub
+          <div className="flex justify-center">
+            <a href="https://dash.domain.digitalplat.org/signup?ref=jfs4BIQ0Mw" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-3 py-2 border border-border rounded-xl bg-surface text-foreground text-xs no-underline hover:border-accent/30 transition-colors">
+              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-accent/10 text-accent text-[10px] font-semibold uppercase tracking-wide">DigitalPlat</span>
+              <span className="flex flex-col gap-0.5">
+                <span className="font-semibold text-xs">Powered by DigitalPlat FreeDomain</span>
+                <span className="text-muted text-[10px]">Get a free domain from DigitalPlat.</span>
+              </span>
             </a>
-            <span className="font-mono text-accent">qzz.io</span>
           </div>
         </div>
       </footer>

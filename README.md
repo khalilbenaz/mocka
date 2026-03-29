@@ -16,6 +16,8 @@ Create mock API servers in seconds. Define your endpoints, get a live URL, and t
 ![Cloudflare](https://img.shields.io/badge/Cloudflare_Workers-F38020?style=flat-square&logo=cloudflare&logoColor=white)
 ![D1](https://img.shields.io/badge/Cloudflare_D1-F38020?style=flat-square&logo=cloudflare&logoColor=white)
 
+[![This Website is Powered by DigitalPlat FreeDomain Get a free domain from DigitalPlat.](https://img.shields.io/badge/DigitalPlat-Get%20a%20free%20domain%20from%20DigitalPlat.-2563eb?style=flat-square&logo=databricks&logoColor=ffffff)](https://dash.domain.digitalplat.org/signup?ref=jfs4BIQ0Mw)
+
 </div>
 
 ---
@@ -82,61 +84,26 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## API Reference
 
-### Authentication
+### Creating & Managing Mocks
 
-All management endpoints (`/api/mocks`, `/api/stats`) require a **Clerk session**. There are two ways to authenticate:
+Mock projects are created and managed via the **web UI**:
 
-#### 1. Session cookie (browser — automatic)
+1. **Sign in** at [mocka.qzz.io](https://mocka.qzz.io) with GitHub or email
+2. Go to [/create](https://mocka.qzz.io/create), name your project, add endpoints
+3. Click **Create Mock Server** — your API is live instantly
+4. Manage everything from the [dashboard](https://mocka.qzz.io/dashboard): edit endpoints, export configs, delete projects
 
-When using Mocka from the browser, Clerk handles authentication via session cookies. No extra headers needed.
+You can also **import a JSON file** on the create page to set up a project in one click (see [Import / Export](#import--export)).
 
-#### 2. Bearer token (programmatic access)
-
-For API calls from scripts, CI/CD, Postman, or other tools, use a **Clerk JWT token** in the `Authorization` header:
-
-```bash
-curl -H "Authorization: Bearer YOUR_CLERK_JWT_TOKEN" https://mocka.qzz.io/api/mocks
-```
-
-**How to get your token:**
-
-- From the browser console (while logged in): `await window.Clerk.session.getToken()`
-- From Clerk SDK: `const token = await getToken()`
-- From Clerk dashboard: generate a long-lived API token
-
-> **Note:** Mock serving endpoints (`/api/mock/{userSlug}/{slug}/*`) are **public** — no authentication needed.
+> **Note:** The management API (`/api/mocks`) uses Clerk session cookies — it is designed for the web UI, not for direct programmatic calls.
 
 ---
 
-### Projects
+### Projects (Internal API)
+
+These endpoints are used internally by the Mocka web UI. They require an active Clerk session (browser cookie).
 
 #### `POST /api/mocks` — Create a mock project
-
-Creates a new mock project with one or more endpoints.
-
-```bash
-curl -X POST https://mocka.qzz.io/api/mocks \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "id": "proj_1",
-    "name": "Users API",
-    "slug": "users-api",
-    "description": "Mock for user management",
-    "endpoints": [
-      {
-        "id": "ep_1",
-        "method": "GET",
-        "path": "/users",
-        "statusCode": 200,
-        "responseBody": "[{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]",
-        "contentType": "application/json",
-        "headers": {},
-        "delay": 0
-      }
-    ]
-  }'
-```
 
 **Request body:**
 
@@ -157,7 +124,7 @@ curl -X POST https://mocka.qzz.io/api/mocks \
 Returns all projects for the authenticated user, ordered by last update.
 
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" https://mocka.qzz.io/api/mocks
+curl https://mocka.qzz.io/api/mocks
 ```
 
 **Response:** `200`
@@ -187,7 +154,6 @@ Updates an existing project you own. Send the full project object.
 ```bash
 curl -X PUT https://mocka.qzz.io/api/mocks \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
     "id": "proj_1",
     "name": "Users API v2",
@@ -227,8 +193,7 @@ curl -X PUT https://mocka.qzz.io/api/mocks \
 Deletes a project and all its associated request logs.
 
 ```bash
-curl -X DELETE "https://mocka.qzz.io/api/mocks?slug=users-api" \
-  -H "Authorization: Bearer YOUR_TOKEN"
+curl -X DELETE "https://mocka.qzz.io/api/mocks?slug=users-api"
 ```
 
 **Response:** `200`
@@ -305,8 +270,7 @@ Returns `204` with full CORS headers.
 #### `GET /api/stats?slug={slug}` — Get project statistics
 
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" \
-  "https://mocka.qzz.io/api/stats?slug=users-api"
+curl "https://mocka.qzz.io/api/stats?slug=users-api"
 ```
 
 **Response:** `200`
@@ -410,7 +374,7 @@ Click **Import JSON** on the `/create` page and select a `.json` file. Fields `n
 # Create a project from a JSON file
 curl -X POST https://mocka.qzz.io/api/mocks \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+  \
   -d @my-mock.json
 ```
 
