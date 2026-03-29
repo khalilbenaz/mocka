@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useUser, useAuth, SignInButton } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
-import { useAuth } from "@/lib/auth";
 import { MockProject } from "@/lib/types";
 import { methodColor, copyToClipboard } from "@/lib/utils";
 
@@ -19,7 +19,8 @@ export default function DashboardPage() {
 function DashboardContent() {
   const searchParams = useSearchParams();
   const created = searchParams.get("created");
-  const { user, login, loading: authLoading, getToken } = useAuth();
+  const { isLoaded, isSignedIn } = useUser();
+  const { getToken } = useAuth();
 
   const [projects, setProjects] = useState<MockProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,12 +49,12 @@ function DashboardContent() {
   }, [getToken]);
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (isLoaded && isSignedIn) {
       fetchProjects();
-    } else if (!authLoading) {
+    } else if (isLoaded) {
       setLoading(false);
     }
-  }, [authLoading, user, fetchProjects]);
+  }, [isLoaded, isSignedIn, fetchProjects]);
 
   const handleDelete = async (slug: string) => {
     if (!confirm("Delete this mock project?")) return;
@@ -84,7 +85,7 @@ function DashboardContent() {
     URL.revokeObjectURL(url);
   };
 
-  if (authLoading) {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -93,7 +94,7 @@ function DashboardContent() {
     );
   }
 
-  if (!user) {
+  if (!isSignedIn) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -104,12 +105,16 @@ function DashboardContent() {
           <h2 className="text-xl font-bold mb-2">Sign in to view your mocks</h2>
           <p className="text-sm text-muted mb-6">Login to access your mock servers dashboard.</p>
           <div className="flex justify-center gap-3">
-            <button onClick={login} className="text-sm text-muted hover:text-foreground border border-border px-4 py-2 rounded-lg transition-colors">
-              Login
-            </button>
-            <button onClick={login} className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">
-              Sign Up Free
-            </button>
+            <SignInButton mode="modal">
+              <button className="text-sm text-muted hover:text-foreground border border-border px-4 py-2 rounded-lg transition-colors">
+                Login
+              </button>
+            </SignInButton>
+            <SignInButton mode="modal">
+              <button className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                Sign Up Free
+              </button>
+            </SignInButton>
           </div>
         </div>
       </div>

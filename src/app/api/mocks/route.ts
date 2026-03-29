@@ -9,8 +9,8 @@ function unauthorized() {
 }
 
 // GET — list user's projects
-export async function GET(request: NextRequest) {
-  const user = getUserFromRequest(request);
+export async function GET() {
+  const user = await getUserFromRequest();
   if (!user) return unauthorized();
 
   const projects = getUserProjects(user.sub);
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
 // POST — create a new project
 export async function POST(request: NextRequest) {
-  const user = getUserFromRequest(request);
+  const user = await getUserFromRequest();
   if (!user) return unauthorized();
 
   try {
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
 // PUT — update a project
 export async function PUT(request: NextRequest) {
-  const user = getUserFromRequest(request);
+  const user = await getUserFromRequest();
   if (!user) return unauthorized();
 
   try {
@@ -92,7 +92,7 @@ export async function PUT(request: NextRequest) {
 
 // DELETE — delete a project
 export async function DELETE(request: NextRequest) {
-  const user = getUserFromRequest(request);
+  const user = await getUserFromRequest();
   if (!user) return unauthorized();
 
   const { searchParams } = new URL(request.url);

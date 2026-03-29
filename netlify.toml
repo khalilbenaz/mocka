@@ -4,7 +4,3 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-# Enable Netlify Identity
-[template.environment]
-  NETLIFY_IDENTITY_ENABLED = "true"

@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUser, useAuth, SignInButton } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import EndpointForm from "@/components/EndpointForm";
-import { useAuth } from "@/lib/auth";
 import { MockEndpoint } from "@/lib/types";
 import { generateId, generateSlug, methodColor, userIdToSlug } from "@/lib/utils";
 
 export default function CreatePage() {
   const router = useRouter();
-  const { user, login, loading, getToken } = useAuth();
+  const { isLoaded, isSignedIn, user } = useUser();
+  const { getToken } = useAuth();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [endpoints, setEndpoints] = useState<MockEndpoint[]>([]);
@@ -108,7 +109,7 @@ export default function CreatePage() {
     input.click();
   };
 
-  if (loading) {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -117,7 +118,7 @@ export default function CreatePage() {
     );
   }
 
-  if (!user) {
+  if (!isSignedIn) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -128,12 +129,16 @@ export default function CreatePage() {
           <h2 className="text-xl font-bold mb-2">Sign in to create mocks</h2>
           <p className="text-sm text-muted mb-6">Create an account to start building mock servers.</p>
           <div className="flex justify-center gap-3">
-            <button onClick={login} className="text-sm text-muted hover:text-foreground border border-border px-4 py-2 rounded-lg transition-colors">
-              Login
-            </button>
-            <button onClick={login} className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">
-              Sign Up Free
-            </button>
+            <SignInButton mode="modal">
+              <button className="text-sm text-muted hover:text-foreground border border-border px-4 py-2 rounded-lg transition-colors">
+                Login
+              </button>
+            </SignInButton>
+            <SignInButton mode="modal">
+              <button className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                Sign Up Free
+              </button>
+            </SignInButton>
           </div>
         </div>
       </div>
