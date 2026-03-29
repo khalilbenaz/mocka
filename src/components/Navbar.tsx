@@ -16,7 +16,7 @@ export default function Navbar() {
           </div>
           <span className="font-bold text-lg tracking-tight">
             Mocka
-            <span className="text-muted text-sm font-normal ml-1.5">qd.je</span>
+            <span className="text-muted text-sm font-normal ml-1.5">qzz.io</span>
           </span>
         </Link>
 

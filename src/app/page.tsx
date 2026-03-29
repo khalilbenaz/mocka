@@ -58,7 +58,7 @@ export default function Home() {
                 <div className="w-3 h-3 rounded-full bg-danger/60" />
                 <div className="w-3 h-3 rounded-full bg-warning/60" />
                 <div className="w-3 h-3 rounded-full bg-success/60" />
-                <span className="ml-2 text-xs text-muted font-mono">your-mock.qd.je</span>
+                <span className="ml-2 text-xs text-muted font-mono">mocka.qzz.io</span>
               </div>
               <pre className="p-5 text-sm font-mono overflow-x-auto">
                 <code>
@@ -147,7 +147,7 @@ export default function Home() {
             <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-white font-bold text-xs">M</div>
             <span>Mocka</span>
           </div>
-          <span className="font-mono text-accent">qd.je</span>
+          <span className="font-mono text-accent">qzz.io</span>
         </div>
       </footer>
     </div>

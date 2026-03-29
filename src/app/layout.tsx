@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mocka — Mock anything. Instantly. | qd.je",
+  title: "Mocka — Mock anything. Instantly. | qzz.io",
   description:
     "Create mock API servers in seconds. Define endpoints, get a live URL, test your frontend without a backend. Free, fast, no signup required.",
   keywords: ["mock server", "API mock", "fake API", "mock endpoints", "API testing"],
