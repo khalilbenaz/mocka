@@ -42,6 +42,15 @@ export async function getProject(userSlug: string, slug: string): Promise<MockPr
   return row ? rowToProject(row) : undefined;
 }
 
+// Get all projects (public catalog)
+export async function getAllProjects(): Promise<MockProject[]> {
+  const db = await getDB();
+  const { results } = await db
+    .prepare("SELECT * FROM projects ORDER BY updated_at DESC")
+    .all<ProjectRow>();
+  return results.map(rowToProject);
+}
+
 // Get all projects for a specific user
 export async function getUserProjects(userId: string): Promise<MockProject[]> {
   const db = await getDB();
