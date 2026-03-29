@@ -17,12 +17,18 @@ export default function Home() {
             <span className="font-bold text-xl tracking-tight">Mocka</span>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="#docs" className="text-sm text-muted hover:text-foreground transition-colors">
+              Docs
+            </Link>
             <Link href="/dashboard" className="text-sm text-muted hover:text-foreground transition-colors">
               Dashboard
             </Link>
             <Link href="/create" className="text-sm bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors">
               Create Mock
             </Link>
+            <a href="https://github.com/khalilbenaz/mocka" target="_blank" rel="noopener noreferrer" className="text-muted hover:text-foreground transition-colors">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
             <ThemeToggle />
           </div>
         </nav>
@@ -142,6 +148,229 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Documentation */}
+      <section id="docs" className="py-24 border-t border-border">
+        <div className="max-w-5xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-4">Documentation</h2>
+          <p className="text-muted text-center mb-16 max-w-2xl mx-auto">Everything you need to use Mocka from the UI or programmatically via API.</p>
+
+          {/* API Auth */}
+          <div className="mb-16">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">1</span>
+              Authentication
+            </h3>
+            <div className="bg-surface border border-border rounded-xl p-6 space-y-4">
+              <p className="text-muted text-sm leading-relaxed">
+                Management endpoints (<code className="bg-surface-2 px-1.5 py-0.5 rounded text-accent text-xs">/api/mocks</code>, <code className="bg-surface-2 px-1.5 py-0.5 rounded text-accent text-xs">/api/stats</code>) require authentication.
+                Mock serving endpoints are <strong className="text-foreground">public</strong>.
+              </p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-background border border-border rounded-lg p-4">
+                  <div className="text-xs text-muted uppercase tracking-wide mb-2 font-semibold">Browser (automatic)</div>
+                  <p className="text-sm text-muted">Clerk handles authentication via session cookies. No headers needed.</p>
+                </div>
+                <div className="bg-background border border-border rounded-lg p-4">
+                  <div className="text-xs text-muted uppercase tracking-wide mb-2 font-semibold">Programmatic (Bearer)</div>
+                  <pre className="text-xs font-mono text-accent overflow-x-auto">Authorization: Bearer YOUR_CLERK_JWT</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CRUD */}
+          <div className="mb-16">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">2</span>
+              Manage Projects (CRUD)
+            </h3>
+            <div className="space-y-3">
+              {[
+                { method: "POST", path: "/api/mocks", desc: "Create a new mock project", badge: "method-post" },
+                { method: "GET", path: "/api/mocks", desc: "List all your projects", badge: "method-get" },
+                { method: "PUT", path: "/api/mocks", desc: "Update an existing project", badge: "method-put" },
+                { method: "DELETE", path: "/api/mocks?slug=xxx", desc: "Delete a project and its logs", badge: "method-delete" },
+              ].map((ep) => (
+                <div key={ep.method + ep.path} className="bg-surface border border-border rounded-lg px-5 py-3 flex items-center gap-4">
+                  <span className={`shrink-0 text-xs font-mono font-bold px-2.5 py-1 rounded ${ep.badge}`}>{ep.method}</span>
+                  <code className="text-sm font-mono text-foreground/90">{ep.path}</code>
+                  <span className="ml-auto text-sm text-muted hidden sm:inline">{ep.desc}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 bg-surface border border-border rounded-xl overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-surface-2/50">
+                <span className="text-xs text-muted font-mono">Example: Create a project</span>
+              </div>
+              <pre className="p-4 text-xs font-mono text-foreground/80 overflow-x-auto leading-relaxed">{`curl -X POST https://mocka.qzz.io/api/mocks \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_TOKEN" \\
+  -d '{
+    "id": "1", "name": "My API", "slug": "my-api",
+    "description": "User management mock",
+    "endpoints": [{
+      "id": "e1", "method": "GET", "path": "/users",
+      "statusCode": 200,
+      "responseBody": "[{\\"id\\": 1, \\"name\\": \\"Alice\\"}]",
+      "contentType": "application/json",
+      "headers": {}, "delay": 0
+    }]
+  }'`}</pre>
+            </div>
+          </div>
+
+          {/* Serving mocks */}
+          <div className="mb-16">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">3</span>
+              Use Your Mocks (Public)
+            </h3>
+            <div className="bg-surface border border-border rounded-xl p-6 space-y-4">
+              <p className="text-sm text-muted">
+                Mock endpoints are served at <code className="bg-surface-2 px-1.5 py-0.5 rounded text-accent text-xs">/api/mock/{'{'}<span className="text-warning">userSlug</span>{'}'}/{'{'}<span className="text-warning">slug</span>{'}'}/{'{'}<span className="text-warning">path</span>{'}'}</code> — no auth required.
+              </p>
+              <div className="bg-background border border-border rounded-lg overflow-hidden">
+                <pre className="p-4 text-xs font-mono text-foreground/80 overflow-x-auto leading-relaxed">{`# List users
+curl https://mocka.qzz.io/api/mock/2mojs3/my-api/users
+
+# Get user by ID (path param :id → 42)
+curl https://mocka.qzz.io/api/mock/2mojs3/my-api/users/42
+
+# Create user
+curl -X POST https://mocka.qzz.io/api/mock/2mojs3/my-api/users
+
+# Delete user
+curl -X DELETE https://mocka.qzz.io/api/mock/2mojs3/my-api/users/42`}</pre>
+              </div>
+              <p className="text-sm text-muted">
+                Visit the base URL without a path to see the <strong className="text-foreground">Swagger page</strong> listing all endpoints:
+                <code className="bg-surface-2 px-1.5 py-0.5 rounded text-accent text-xs ml-1">/api/mock/2mojs3/my-api</code>
+              </p>
+            </div>
+          </div>
+
+          {/* Templating */}
+          <div className="mb-16">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">4</span>
+              Response Templating
+            </h3>
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-surface-2/50">
+                    <th className="text-left px-5 py-3 text-muted font-medium text-xs uppercase tracking-wide">Template</th>
+                    <th className="text-left px-5 py-3 text-muted font-medium text-xs uppercase tracking-wide">Output</th>
+                    <th className="text-left px-5 py-3 text-muted font-medium text-xs uppercase tracking-wide hidden sm:table-cell">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { tpl: "{{id}}", out: "42", desc: "Path parameter value" },
+                    { tpl: "{{params.id}}", out: "42", desc: "Explicit path param" },
+                    { tpl: "{{timestamp}}", out: "2025-03-29T10:30:00Z", desc: "ISO 8601 date" },
+                    { tpl: "{{randomId}}", out: "a1b2c3d4", desc: "Random 8-char string" },
+                    { tpl: "{{randomInt}}", out: "7342", desc: "Random 0–10000" },
+                    { tpl: "{{now}}", out: "1711705800000", desc: "Epoch ms" },
+                  ].map((t) => (
+                    <tr key={t.tpl} className="border-b border-border last:border-0">
+                      <td className="px-5 py-3 font-mono text-accent text-xs">{t.tpl}</td>
+                      <td className="px-5 py-3 font-mono text-foreground/70 text-xs">{t.out}</td>
+                      <td className="px-5 py-3 text-muted text-xs hidden sm:table-cell">{t.desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Path params */}
+          <div className="mb-16">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">5</span>
+              Path Parameters
+            </h3>
+            <div className="bg-surface border border-border rounded-xl p-6 space-y-3">
+              <p className="text-sm text-muted mb-4">
+                Use <code className="bg-surface-2 px-1.5 py-0.5 rounded text-accent text-xs">:param</code> in your paths. They are extracted and available in templates.
+              </p>
+              {[
+                { pattern: "/users/:id", url: "/users/42", params: '{ "id": "42" }' },
+                { pattern: "/posts/:postId/comments/:commentId", url: "/posts/5/comments/12", params: '{ "postId": "5", "commentId": "12" }' },
+              ].map((p) => (
+                <div key={p.pattern} className="bg-background border border-border rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2 text-xs font-mono">
+                  <span className="text-accent">{p.pattern}</span>
+                  <span className="text-muted hidden sm:inline">+</span>
+                  <span className="text-foreground/70">{p.url}</span>
+                  <span className="text-muted hidden sm:inline">=</span>
+                  <span className="text-success">{p.params}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Endpoint schema */}
+          <div className="mb-16">
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">6</span>
+              Endpoint Schema
+            </h3>
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-surface-2/50">
+                    <th className="text-left px-5 py-3 text-muted font-medium text-xs uppercase tracking-wide">Field</th>
+                    <th className="text-left px-5 py-3 text-muted font-medium text-xs uppercase tracking-wide">Type</th>
+                    <th className="text-left px-5 py-3 text-muted font-medium text-xs uppercase tracking-wide hidden sm:table-cell">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { field: "id", type: "string", desc: "Unique endpoint ID" },
+                    { field: "method", type: "string", desc: "GET | POST | PUT | PATCH | DELETE" },
+                    { field: "path", type: "string", desc: 'URL path, e.g. "/users/:id"' },
+                    { field: "statusCode", type: "number", desc: "HTTP status code (100–599)" },
+                    { field: "responseBody", type: "string", desc: "Response content (supports templating)" },
+                    { field: "contentType", type: "string", desc: 'MIME type, e.g. "application/json"' },
+                    { field: "headers", type: "object", desc: "Custom response headers" },
+                    { field: "delay", type: "number", desc: "Simulated latency in ms" },
+                  ].map((f) => (
+                    <tr key={f.field} className="border-b border-border last:border-0">
+                      <td className="px-5 py-3 font-mono text-accent text-xs">{f.field}</td>
+                      <td className="px-5 py-3 font-mono text-foreground/70 text-xs">{f.type}</td>
+                      <td className="px-5 py-3 text-muted text-xs hidden sm:table-cell">{f.desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Import / Export */}
+          <div>
+            <h3 className="text-xl font-semibold mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-mono text-sm font-bold">7</span>
+              Import &amp; Export
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-surface border border-border rounded-xl p-5">
+                <h4 className="font-semibold mb-2 text-sm">Export</h4>
+                <p className="text-sm text-muted leading-relaxed">
+                  From the <Link href="/dashboard" className="text-accent hover:underline">dashboard</Link>, click <strong className="text-foreground">Export</strong> on any project to download a <code className="bg-surface-2 px-1 py-0.5 rounded text-accent text-xs">.json</code> file.
+                </p>
+              </div>
+              <div className="bg-surface border border-border rounded-xl p-5">
+                <h4 className="font-semibold mb-2 text-sm">Import</h4>
+                <p className="text-sm text-muted leading-relaxed">
+                  On the <Link href="/create" className="text-accent hover:underline">create page</Link>, click <strong className="text-foreground">Import JSON</strong> to load a config file. Or import via API:
+                </p>
+                <pre className="mt-2 text-xs font-mono text-accent overflow-x-auto">curl -X POST /api/mocks -d @mock.json</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between text-sm text-muted">
@@ -149,7 +378,13 @@ export default function Home() {
             <div className="w-6 h-6 rounded bg-accent flex items-center justify-center text-white font-bold text-xs">M</div>
             <span>Mocka</span>
           </div>
-          <span className="font-mono text-accent">qzz.io</span>
+          <div className="flex items-center gap-4">
+            <a href="https://github.com/khalilbenaz/mocka" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+            <span className="font-mono text-accent">qzz.io</span>
+          </div>
         </div>
       </footer>
     </div>
