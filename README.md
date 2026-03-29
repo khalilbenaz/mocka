@@ -45,6 +45,7 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 | **Shareable URLs** | Each mock project gets a unique, public base URL |
 | **Swagger Page** | Visit a mock's base URL to see a Swagger-like listing of all its endpoints |
 | **Dark & Light Theme** | Toggle between dark and light mode |
+| **Live Demo** | Full e-commerce demo app powered by a Mocka mock API at [/demo](https://mocka.qzz.io/demo) |
 | **Persistent Storage** | Cloudflare D1 (SQLite at the edge) — data survives deployments |
 
 ## Quick Start
@@ -405,6 +406,7 @@ src/
 │   ├── page.tsx                                  # Landing page
 │   ├── create/page.tsx                           # Mock creation form (auth required)
 │   ├── dashboard/page.tsx                        # Mock management dashboard (auth required)
+│   ├── demo/page.tsx                             # Live e-commerce demo (uses mock API)
 │   ├── api/
 │   │   ├── mocks/route.ts                        # CRUD API for mock projects
 │   │   ├── stats/route.ts                        # Analytics API

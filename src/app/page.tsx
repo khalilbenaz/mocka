@@ -17,6 +17,9 @@ export default function Home() {
             <span className="font-bold text-xl tracking-tight">Mocka</span>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/demo" className="text-sm text-muted hover:text-foreground transition-colors">
+              Demo
+            </Link>
             <Link href="#docs" className="text-sm text-muted hover:text-foreground transition-colors">
               Docs
             </Link>
