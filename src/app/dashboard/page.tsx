@@ -98,11 +98,15 @@ function DashboardContent() {
   const handleDelete = async (slug: string) => {
     if (!confirm("Delete this mock project?")) return;
     const token = await getToken();
-    await fetch(`/api/mocks?slug=${slug}`, {
+    const res = await fetch(`/api/mocks?slug=${slug}`, {
       method: "DELETE",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    setProjects(projects.filter((p) => p.slug !== slug));
+    if (res.ok) {
+      setProjects(projects.filter((p) => p.slug !== slug));
+    } else {
+      alert("Failed to delete project. Please try again.");
+    }
   };
 
   const handleCopy = async (userSlug: string, slug: string) => {

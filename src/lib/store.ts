@@ -88,14 +88,21 @@ export async function saveProject(project: MockProject): Promise<void> {
     .run();
 }
 
-// Delete a project
+// Delete a project and its request logs
 export async function deleteProject(userSlug: string, slug: string): Promise<boolean> {
   const db = await getDB();
   const result = await db
     .prepare("DELETE FROM projects WHERE user_slug = ? AND slug = ?")
     .bind(userSlug, slug)
     .run();
-  return result.meta.changes > 0;
+  if (result.meta.changes > 0) {
+    await db
+      .prepare("DELETE FROM request_logs WHERE user_slug = ? AND project_slug = ?")
+      .bind(userSlug, slug)
+      .run();
+    return true;
+  }
+  return false;
 }
 
 // Check if a slug exists for a given user
