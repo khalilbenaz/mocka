@@ -39,8 +39,8 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 | **Path Parameters** | Support for `:param` style dynamic segments (e.g. `/users/:id`) |
 | **CORS Ready** | All endpoints include CORS headers by default |
 | **Import / Export** | Save and share mock configurations as JSON files |
-| **Public API Catalog** | The homepage lists all mocks Swagger-style with endpoints |
 | **Shareable URLs** | Each mock project gets a unique, public base URL |
+| **Swagger Page** | Visit a mock's base URL to see a Swagger-like listing of all its endpoints |
 | **Persistent Storage** | Cloudflare D1 (SQLite at the edge) — data survives deployments |
 | **Dark UI** | Clean, modern dark interface |
 
@@ -48,11 +48,10 @@ Mocka is a free, open-source mock server builder. It lets you define API endpoin
 
 ### Use the hosted version
 
-1. Go to [mocka.qzz.io](https://mocka.qzz.io) to browse the **public API catalog** listing all mocks
-2. **Sign up** with GitHub, Google or email
-3. Go to [/create](https://mocka.qzz.io/create), name your project and add endpoints
-4. Click **Create Mock Server**
-5. Your mock is live — it appears in the catalog and the base URL is ready to use
+1. Go to [mocka.qzz.io](https://mocka.qzz.io) and **sign up** with GitHub, Google or email
+2. Go to [/create](https://mocka.qzz.io/create), name your project and add endpoints
+3. Click **Create Mock Server**
+4. Your mock is live — use the base URL in your frontend
 
 ### Run locally
 
@@ -219,12 +218,14 @@ Returns `204` with full CORS headers.
 ```
 src/
 ├── app/
-│   ├── page.tsx                                  # Public API catalog (Swagger-like)
+│   ├── page.tsx                                  # Landing page
 │   ├── create/page.tsx                           # Mock creation form (auth required)
 │   ├── dashboard/page.tsx                        # Mock management dashboard (auth required)
 │   ├── api/
 │   │   ├── mocks/route.ts                        # CRUD API for mock projects
-│   │   └── mock/[userSlug]/[slug]/[...path]/     # Mock server endpoint (public)
+│   │   └── mock/[userSlug]/[slug]/
+│   │       ├── route.ts                          # Swagger page (mock base URL)
+│   │       └── [...path]/route.ts                # Mock server endpoint (public)
 │   ├── layout.tsx
 │   └── globals.css
 ├── components/
